@@ -476,7 +476,6 @@ const SCALE_ORDER = ["pf", "rp", "bp", "gh", "mh", "re", "sf", "vt"];
 
 const state = loadState();
 const app = typeof document !== "undefined" ? document.getElementById("app") : null;
-let promoLandingDismissed = false;
 
 if (app) {
   render();
@@ -488,6 +487,7 @@ function createDefaultState() {
     startedAt: null,
     completedAt: null,
     submissionId: null,
+    lastExportedSubmissionId: null,
     participantName: "",
     answers: {},
     lastError: "",
@@ -808,9 +808,7 @@ function renderResults() {
   );
   const participantLabel = getParticipantLabel();
   const resultActionButtons = `
-    <button class="btn btn-primary" id="download-json-btn">Скачать JSON результата</button>
-    <button class="btn btn-secondary" id="review-btn">Вернуться к вопросам</button>
-    <button class="btn btn-ghost" id="reset-btn">Очистить и начать заново</button>
+    <button class="btn btn-secondary" id="retry-btn">Пройти еще раз</button>
   `;
 
   app.innerHTML = `
@@ -866,14 +864,7 @@ function renderResults() {
     </section>
   `;
 
-  document.getElementById("review-btn").addEventListener("click", () => {
-    state.currentScreenIndex = 1;
-    state.lastError = "";
-    saveState();
-    render();
-  });
-
-  document.getElementById("reset-btn").addEventListener("click", () => {
+  document.getElementById("retry-btn").addEventListener("click", () => {
     const participantName = state.participantName;
     clearState();
     state.participantName = participantName;
@@ -883,16 +874,12 @@ function renderResults() {
     render();
   });
 
-  document.getElementById("download-json-btn").addEventListener("click", () => {
-    downloadPayload(buildSubmissionPayload(results));
-  });
-
   const syncButton = document.getElementById("sheet-sync-primary-btn");
   if (syncButton) {
     syncButton.addEventListener("click", () => {
       const action = syncButton.dataset.syncAction;
-      if (action === "save" || action === "retry") {
-        syncResultsToGoogleSheets(results);
+      if (action === "export_and_save") {
+        downloadAndSyncResultsOnce(results);
       }
     });
   }
@@ -943,12 +930,6 @@ function renderSheetSyncCard(extraActions = "") {
   return `
     <article class="summary-card summary-card--sync summary-card--${stateMeta.tone}" id="sheet-sync-card">
       <div class="scale-group-label">Google Sheets</div>
-      <p class="summary-copy" id="sheet-sync-message">${stateMeta.message}</p>
-      ${
-        state.lastSyncedSheetName
-          ? `<div class="sync-chip" id="sheet-sync-sheet">Лист: ${escapeHtml(state.lastSyncedSheetName)}</div>`
-          : '<div class="sync-chip sync-chip--ghost" id="sheet-sync-sheet">Лист будет выбран автоматически</div>'
-      }
       <div class="result-actions result-actions--sync result-actions--single-line">
         ${primaryButton}
         ${tableAction}
@@ -959,66 +940,64 @@ function renderSheetSyncCard(extraActions = "") {
 }
 
 function getSheetSyncMeta() {
-  if (!APP_CONFIG.webAppUrl) {
+  const isCurrentSubmissionExported =
+    Boolean(state.submissionId) && state.lastExportedSubmissionId === state.submissionId;
+
+  if (state.syncStatus === "saving") {
     return {
-      tone: "muted",
-      message: "Чтобы сайт сам писал результаты в таблицу, нужно опубликовать Apps Script и вставить его URL в config.js.",
-      primary: null,
+      tone: "info",
+      message: "",
+      primary: {
+        action: "none",
+        label: "Скачиваем и сохраняем…",
+        disabled: true,
+      },
     };
   }
 
-  switch (state.syncStatus) {
-    case "saving":
-      return {
-        tone: "info",
-        message: "Сохраняем ответы в Google Sheets…",
-        primary: {
-          action: "none",
-          label: "Сохраняем…",
-          disabled: true,
-        },
-      };
-    case "saved":
-      return {
-        tone: "success",
-        message: "Результат сохранен в Google Sheets.",
-        primary: {
-          action: "done",
-          label: "Сохранено в таблицу",
-          disabled: true,
-        },
-      };
-    case "sent":
-      return {
-        tone: "success",
-        message: "Запрос на сохранение отправлен. Если Apps Script опубликован правильно, строка уже появится в таблице.",
-        primary: {
-          action: "done",
-          label: "Сохранено в таблицу",
-          disabled: true,
-        },
-      };
-    case "error":
-      return {
-        tone: "danger",
-        message: state.syncMessage || "Не удалось отправить результат в таблицу.",
-        primary: {
-          action: "retry",
-          label: "Повторить сохранение",
-          disabled: false,
-        },
-      };
-    default:
-      return {
-        tone: "muted",
-        message: "Таблица подключена. Можно сохранить этот результат в отдельный лист по имени участника.",
-        primary: {
-          action: "save",
-          label: "Сохранить в таблицу",
-          disabled: false,
-        },
-      };
+  if (isCurrentSubmissionExported) {
+    return {
+      tone: state.syncStatus === "error" ? "danger" : "success",
+      message: "",
+      primary: {
+        action: "done",
+        label: state.syncStatus === "error" ? "Скачано, ошибка записи" : "Скачано и сохранено",
+        disabled: true,
+      },
+    };
   }
+
+  return {
+    tone: "muted",
+    message: "",
+    primary: {
+      action: "export_and_save",
+      label: APP_CONFIG.webAppUrl ? "Скачать JSON и сохранить в таблицу" : "Скачать JSON результата",
+      disabled: false,
+    },
+  };
+}
+
+async function downloadAndSyncResultsOnce(results) {
+  const payload = buildSubmissionPayload(results);
+  if (state.lastExportedSubmissionId === payload.submission_id) {
+    return;
+  }
+
+  downloadPayload(payload);
+  state.lastExportedSubmissionId = payload.submission_id;
+  saveState();
+  updateSheetSyncUI();
+
+  if (!APP_CONFIG.webAppUrl) {
+    state.syncStatus = "saved";
+    state.syncMessage = "";
+    saveState();
+    updateSheetSyncUI();
+    return;
+  }
+
+  await syncResultsToGoogleSheets(results);
 }
 
 async function syncResultsToGoogleSheets(results) {
@@ -1114,12 +1093,14 @@ function updateSheetSyncUI() {
   const card = document.getElementById("sheet-sync-card");
   const button = document.getElementById("sheet-sync-primary-btn");
 
-  if (!message || !sheetChip || !card) {
+  if (!card) {
     return;
   }
 
   const meta = getSheetSyncMeta();
-  message.textContent = meta.message;
+  if (message) {
+    message.textContent = meta.message;
+  }
   card.className = `summary-card summary-card--sync summary-card--${meta.tone}`;
 
   if (button && meta.primary) {
@@ -1129,12 +1110,14 @@ function updateSheetSyncUI() {
     button.className = `btn ${meta.primary.disabled ? "btn-secondary" : "btn-primary"}`;
   }
 
-  if (state.lastSyncedSheetName) {
-    sheetChip.textContent = `Лист: ${state.lastSyncedSheetName}`;
-    sheetChip.className = "sync-chip";
-  } else {
-    sheetChip.textContent = "Лист будет выбран автоматически";
-    sheetChip.className = "sync-chip sync-chip--ghost";
+  if (sheetChip) {
+    if (state.lastSyncedSheetName) {
+      sheetChip.textContent = `Лист: ${state.lastSyncedSheetName}`;
+      sheetChip.className = "sync-chip";
+    } else {
+      sheetChip.textContent = "Лист будет выбран автоматически";
+      sheetChip.className = "sync-chip sync-chip--ghost";
+    }
   }
 }
 
