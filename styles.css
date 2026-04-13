@@ -158,6 +158,11 @@ h1 {
   animation: rise-in 0.35s ease;
 }
 
+.app-panel--questions {
+  background: rgba(255, 252, 247, 0.96);
+  backdrop-filter: none;
+}
+
 .welcome-layout,
 .result-layout {
   display: grid;
@@ -355,6 +360,12 @@ h1 {
 .question-card {
   border-radius: var(--radius-lg);
   padding: 18px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(250, 246, 240, 0.96));
+  backdrop-filter: none;
+  box-shadow: 0 14px 28px rgba(16, 39, 44, 0.08);
+  contain: layout paint;
+  isolation: isolate;
+  overflow: hidden;
 }
 
 .question-label {
@@ -378,11 +389,20 @@ h1 {
 .options-grid {
   display: grid;
   gap: 8px;
-  margin-top: 12px;
 }
 
 .options-grid--compact {
   grid-template-columns: repeat(auto-fit, minmax(136px, 1fr));
+}
+
+.question-response-shell {
+  margin-top: 14px;
+  padding: 14px 16px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(27, 62, 68, 0.08);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(245, 242, 234, 0.96));
+  contain: layout paint;
+  isolation: isolate;
 }
 
 .option-tile {
@@ -431,7 +451,6 @@ h1 {
   flex-wrap: nowrap;
   justify-content: space-between;
   gap: 12px;
-  margin-top: 14px;
 }
 
 .emoji-option {
@@ -472,6 +491,7 @@ h1 {
 
 .emoji-caption {
   margin: 10px 0 0;
+  min-height: 2.8em;
   color: var(--text-soft);
   font-size: 0.88rem;
   line-height: 1.4;

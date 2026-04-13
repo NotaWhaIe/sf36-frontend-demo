@@ -607,7 +607,7 @@ function renderQuestionScreen(screen) {
   const progress = Math.round((answeredCount / QUESTIONS.length) * 100);
 
   const html = `
-    <section class="app-panel">
+    <section class="app-panel app-panel--questions">
       <header class="screen-header">
         <div class="screen-meta">
           <span class="screen-kicker">Экран ${currentScreenNumber} из ${totalQuestionScreens}</span>
@@ -664,27 +664,29 @@ function renderQuestionCard(question) {
       <article class="question-card" data-question-id="${question.id}">
         <span class="question-label">Вопрос ${question.number}</span>
         <p class="question-text">${question.text}</p>
-        <div class="emoji-scale" role="radiogroup" aria-label="Варианты ответа для вопроса ${question.number}">
-          ${options
-            .map((option) => {
-              const isSelected = Number(selectedValue) === option.value;
-              return `
-                <label class="emoji-option ${isSelected ? "is-selected" : ""}" title="${option.label}">
-                  <input
-                    type="radio"
-                    name="${question.id}"
-                    value="${option.value}"
-                    ${isSelected ? "checked" : ""}
-                  >
-                  <span class="emoji-face" aria-hidden="true">${option.emoji}</span>
-                </label>
-              `;
-            })
-            .join("")}
+        <div class="question-response-shell">
+          <div class="emoji-scale" role="radiogroup" aria-label="Варианты ответа для вопроса ${question.number}">
+            ${options
+              .map((option) => {
+                const isSelected = Number(selectedValue) === option.value;
+                return `
+                  <label class="emoji-option ${isSelected ? "is-selected" : ""}" title="${option.label}">
+                    <input
+                      type="radio"
+                      name="${question.id}"
+                      value="${option.value}"
+                      ${isSelected ? "checked" : ""}
+                    >
+                    <span class="emoji-face" aria-hidden="true">${option.emoji}</span>
+                  </label>
+                `;
+              })
+              .join("")}
+          </div>
+          <p class="emoji-caption">
+            ${selectedLabel ? `Выбрано: ${selectedLabel}` : "Нажмите на смайлик, который лучше всего подходит"}
+          </p>
         </div>
-        <p class="emoji-caption">
-          ${selectedLabel ? `Выбрано: ${selectedLabel}` : "Нажмите на смайлик, который лучше всего подходит"}
-        </p>
       </article>
     `;
   }
@@ -693,23 +695,25 @@ function renderQuestionCard(question) {
     <article class="question-card" data-question-id="${question.id}">
       <span class="question-label">Вопрос ${question.number}</span>
       <p class="question-text">${question.text}</p>
-      <div class="options-grid options-grid--compact">
-        ${options
-          .map((option) => {
-            const isSelected = Number(selectedValue) === option.value;
-            return `
-              <label class="option-tile ${isSelected ? "is-selected" : ""}">
-                <input
-                  type="radio"
-                  name="${question.id}"
-                  value="${option.value}"
-                  ${isSelected ? "checked" : ""}
-                >
-                <span class="option-label">${option.label}</span>
-              </label>
-            `;
-          })
-          .join("")}
+      <div class="question-response-shell">
+        <div class="options-grid options-grid--compact">
+          ${options
+            .map((option) => {
+              const isSelected = Number(selectedValue) === option.value;
+              return `
+                <label class="option-tile ${isSelected ? "is-selected" : ""}">
+                  <input
+                    type="radio"
+                    name="${question.id}"
+                    value="${option.value}"
+                    ${isSelected ? "checked" : ""}
+                  >
+                  <span class="option-label">${option.label}</span>
+                </label>
+              `;
+            })
+            .join("")}
+        </div>
       </div>
     </article>
   `;
