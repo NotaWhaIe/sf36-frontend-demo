@@ -395,42 +395,74 @@ const SCREENS = [
 const SCALE_META = {
   pf: {
     title: "Физическое функционирование",
+    shortTitle: "Физ. функция",
     group: "Физический компонент",
+    groupShort: "Физ.",
+    tone: "physical",
+    emoji: "🚶",
     description: "Насколько свободно человек справляется с движением, нагрузкой и самообслуживанием.",
   },
   rp: {
     title: "Ролевое функционирование (физическое)",
+    shortTitle: "Роль (физ.)",
     group: "Физический компонент",
+    groupShort: "Физ.",
+    tone: "physical",
+    emoji: "💼",
     description: "Насколько физическое состояние ограничивает работу и обычные дела.",
   },
   bp: {
     title: "Интенсивность боли",
+    shortTitle: "Боль",
     group: "Физический компонент",
+    groupShort: "Физ.",
+    tone: "physical",
+    emoji: "🩹",
     description: "Как часто и насколько сильно боль влияет на активность.",
   },
   gh: {
     title: "Общее состояние здоровья",
+    shortTitle: "Здоровье",
     group: "Физический компонент",
+    groupShort: "Физ.",
+    tone: "physical",
+    emoji: "❤️",
     description: "Общая субъективная оценка здоровья и отношения к нему.",
   },
   mh: {
     title: "Психологическое здоровье",
+    shortTitle: "Псих. здоровье",
     group: "Психологический компонент",
+    groupShort: "Псих.",
+    tone: "mind",
+    emoji: "🙂",
     description: "Эмоциональная устойчивость, нервозность, подавленность и внутреннее состояние.",
   },
   re: {
     title: "Ролевое функционирование (эмоциональное)",
+    shortTitle: "Роль (эмоц.)",
     group: "Психологический компонент",
+    groupShort: "Псих.",
+    tone: "mind",
+    emoji: "🎭",
     description: "Насколько эмоциональное состояние мешает работе и повседневным задачам.",
   },
   sf: {
     title: "Социальное функционирование",
+    shortTitle: "Социальность",
     group: "Психологический компонент",
+    groupShort: "Псих.",
+    tone: "mind",
+    emoji: "🤝",
     description: "Как физическое и эмоциональное состояние влияет на общение с людьми.",
   },
   vt: {
     title: "Жизненная активность",
+    shortTitle: "Энергия",
     group: "Психологический компонент",
+    groupShort: "Псих.",
+    tone: "mind",
+    emoji: "⚡",
     description: "Ощущение бодрости, энергии и усталости в повседневной жизни.",
   },
 };
@@ -728,61 +760,81 @@ function renderResults() {
     .sort((left, right) => results.normalized[left] - results.normalized[right])
     .slice(0, 3);
   const durationSeconds = getDurationSeconds();
+  const averageScore = Math.round(
+    SCALE_ORDER.reduce((sum, scaleKey) => sum + results.normalized[scaleKey], 0) / SCALE_ORDER.length,
+  );
+  const bestScaleKey = topScales[0];
+  const focusScaleKey = lowScales[0];
+  const comparisonLabel = getAnswerLabel("q2", state.answers.q2) || "Нет данных";
 
   app.innerHTML = `
-    <section class="app-panel result-layout">
-      <div class="result-main">
-        <article class="result-hero">
+    <section class="app-panel result-panel">
+      <article class="result-hero result-hero--compact">
+        <div>
           <p class="eyebrow">Результат готов</p>
           <h2>Профиль качества жизни по SF-36</h2>
           <p>
-            Расчет выполнен на основе ${countAnsweredQuestions()} ответов. Ниже показаны все восемь шкал в диапазоне от 0 до 100
-            по той же формуле, которая использована в исходном Telegram-боте.
+            Все восемь шкал собраны в одной диаграмме. Чем ближе контур к внешнему краю, тем выше показатель по соответствующей шкале.
           </p>
+        </div>
 
-          <div class="summary-grid">
-            <div class="summary-card">
-              <span class="summary-label">Сравнение с прошлым годом</span>
-              <strong class="summary-value">${getAnswerLabel("q2", state.answers.q2) || "Нет данных"}</strong>
-            </div>
-            <div class="summary-card">
-              <span class="summary-label">Длительность заполнения</span>
-              <strong class="summary-value">${formatDuration(durationSeconds)}</strong>
-            </div>
-            <div class="summary-card">
-              <span class="summary-label">Формат</span>
-              <strong class="summary-value">Frontend only</strong>
+        <div class="result-hero-stats">
+          <div class="summary-card summary-card--stat">
+            <span class="summary-label">Средний профиль</span>
+            <strong class="summary-value">${averageScore}<span class="summary-value-suffix">/100</span></strong>
+          </div>
+          <div class="summary-card summary-card--stat">
+            <span class="summary-label">Ответов</span>
+            <strong class="summary-value">${countAnsweredQuestions()}<span class="summary-value-suffix">/36</span></strong>
+          </div>
+          <div class="summary-card summary-card--stat">
+            <span class="summary-label">Заполнение</span>
+            <strong class="summary-value summary-value--text">${formatDuration(durationSeconds)}</strong>
+          </div>
+        </div>
+      </article>
+
+      <div class="result-dashboard">
+        <div class="result-side-stack result-side-stack--left">
+          ${SCALE_ORDER.slice(0, 4).map((scaleKey) => renderResultMetric(scaleKey, results.normalized[scaleKey])).join("")}
+        </div>
+
+        <article class="result-radar-card">
+          <div class="radar-highlight">
+            <div class="radar-highlight-emoji" aria-hidden="true">${SCALE_META[bestScaleKey].emoji}</div>
+            <div>
+              <div class="scale-group-label">Лучше всего сейчас</div>
+              <h3>${SCALE_META[bestScaleKey].title}</h3>
+              <p class="support-text">${results.normalized[bestScaleKey]}/100 · ${getBandLabel(results.normalized[bestScaleKey])}</p>
             </div>
           </div>
+
+          <div class="radar-chart-wrap">
+            ${renderRadarChart(results.normalized)}
+          </div>
+
+          <p class="radar-caption">
+            Сравнение с прошлым годом: <strong>${comparisonLabel}</strong>
+          </p>
         </article>
 
-        <div class="result-scale-grid">
-          ${SCALE_ORDER.map((scaleKey) => renderScaleCard(scaleKey, results.normalized[scaleKey])).join("")}
+        <div class="result-side-stack result-side-stack--right">
+          ${SCALE_ORDER.slice(4).map((scaleKey) => renderResultMetric(scaleKey, results.normalized[scaleKey])).join("")}
         </div>
       </div>
 
-      <aside class="result-side">
+      <div class="result-insights">
         <article class="summary-card">
-          <div class="scale-group-label">Сильные стороны профиля</div>
-          <p class="summary-copy">Три самые высокие шкалы в текущем расчете.</p>
-          <div class="mini-list">
-            ${topScales.map((scaleKey) => renderMiniScale(scaleKey, results.normalized[scaleKey])).join("")}
-          </div>
+          <div class="scale-group-label">Сильная сторона</div>
+          <p class="summary-copy">
+            <strong>${SCALE_META[bestScaleKey].title}</strong> — ${results.normalized[bestScaleKey]}/100. ${SCALE_META[bestScaleKey].description}
+          </p>
         </article>
 
         <article class="summary-card">
-          <div class="scale-group-label">Зоны внимания</div>
-          <p class="summary-copy">Три самые низкие шкалы в текущем расчете.</p>
-          <div class="mini-list">
-            ${lowScales.map((scaleKey) => renderMiniScale(scaleKey, results.normalized[scaleKey])).join("")}
-          </div>
-        </article>
-
-        <article class="summary-card">
-          <div class="scale-group-label">Что можно показать преподавателю</div>
-          <p class="support-text">
-            Этот экран уже можно использовать как демонстрацию логики: вопросы разбиты на экраны, расчет выполняется в браузере,
-            а структура данных готова к последующей отправке в Google Sheets.
+          <div class="scale-group-label">Точка внимания</div>
+          <p class="summary-copy">
+            <strong>${SCALE_META[focusScaleKey].title}</strong> — ${results.normalized[focusScaleKey]}/100. ${SCALE_META[focusScaleKey].description}
           </p>
         </article>
 
@@ -791,7 +843,7 @@ function renderResults() {
           <button class="btn btn-secondary" id="review-btn">Вернуться к вопросам</button>
           <button class="btn btn-ghost" id="reset-btn">Очистить и начать заново</button>
         </div>
-      </aside>
+      </div>
     </section>
   `;
 
@@ -839,6 +891,95 @@ function renderMiniScale(scaleKey, score) {
       <span class="mini-score">${score}/100</span>
     </div>
   `;
+}
+
+function renderResultMetric(scaleKey, score) {
+  const meta = SCALE_META[scaleKey];
+
+  return `
+    <article class="metric-orbit metric-orbit--${meta.tone}" title="${meta.title}">
+      <div class="metric-orbit-head">
+        <span class="metric-emoji" aria-hidden="true">${meta.emoji}</span>
+        <div>
+          <div class="metric-name">${meta.shortTitle}</div>
+          <div class="metric-group">${meta.groupShort}</div>
+        </div>
+      </div>
+      <div class="metric-value">${score}<span>/100</span></div>
+      <div class="metric-track" aria-hidden="true">
+        <div class="metric-track-fill" style="width: ${score}%"></div>
+      </div>
+      <div class="metric-band">${getBandLabel(score)}</div>
+    </article>
+  `;
+}
+
+function renderRadarChart(normalizedScores) {
+  const size = 360;
+  const center = size / 2;
+  const radius = 132;
+  const levels = [25, 50, 75, 100];
+  const averageScore = Math.round(
+    SCALE_ORDER.reduce((sum, scaleKey) => sum + normalizedScores[scaleKey], 0) / SCALE_ORDER.length,
+  );
+  const levelPolygons = levels
+    .map((level) => {
+      const points = getRadarPolygonPoints(SCALE_ORDER.map(() => level), radius, center);
+      return `<polygon class="radar-grid-polygon" points="${points}"></polygon>`;
+    })
+    .join("");
+  const spokes = SCALE_ORDER.map((_, index) => {
+    const point = polarToCartesian(center, center, radius, (360 / SCALE_ORDER.length) * index);
+    return `<line class="radar-grid-spoke" x1="${center}" y1="${center}" x2="${point.x.toFixed(2)}" y2="${point.y.toFixed(2)}"></line>`;
+  }).join("");
+  const dataPoints = getRadarPolygonPoints(
+    SCALE_ORDER.map((scaleKey) => normalizedScores[scaleKey]),
+    radius,
+    center,
+  );
+  const markers = SCALE_ORDER.map((scaleKey, index) => {
+    const point = polarToCartesian(
+      center,
+      center,
+      radius * (normalizedScores[scaleKey] / 100),
+      (360 / SCALE_ORDER.length) * index,
+    );
+    return `<circle class="radar-marker" cx="${point.x.toFixed(2)}" cy="${point.y.toFixed(2)}" r="4.2"></circle>`;
+  }).join("");
+
+  return `
+    <div class="radar-chart-shell">
+      <svg class="radar-chart" viewBox="0 0 ${size} ${size}" aria-hidden="true" focusable="false">
+        ${levelPolygons}
+        ${spokes}
+        <polygon class="radar-data-fill" points="${dataPoints}"></polygon>
+        <polygon class="radar-data-line" points="${dataPoints}"></polygon>
+        ${markers}
+      </svg>
+      <div class="radar-center-badge">
+        <strong>${averageScore}</strong>
+        <span>/100</span>
+      </div>
+    </div>
+  `;
+}
+
+function getRadarPolygonPoints(values, maxRadius, center) {
+  return values
+    .map((value, index) => {
+      const point = polarToCartesian(center, center, maxRadius * (value / 100), (360 / values.length) * index);
+      return `${point.x.toFixed(2)},${point.y.toFixed(2)}`;
+    })
+    .join(" ");
+}
+
+function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
+  const angleInRadians = ((angleInDegrees - 90) * Math.PI) / 180;
+
+  return {
+    x: centerX + radius * Math.cos(angleInRadians),
+    y: centerY + radius * Math.sin(angleInRadians),
+  };
 }
 
 function handleAnswerChange(event) {

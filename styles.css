@@ -512,9 +512,21 @@ h1 {
   align-items: start;
 }
 
+.result-panel {
+  display: grid;
+  gap: 18px;
+}
+
 .result-hero {
   border-radius: var(--radius-xl);
   padding: 24px;
+}
+
+.result-hero--compact {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(300px, 0.95fr);
+  gap: 16px;
+  align-items: start;
 }
 
 .result-hero h2 {
@@ -526,6 +538,254 @@ h1 {
   max-width: 60ch;
   color: var(--text-soft);
   line-height: 1.6;
+}
+
+.result-hero-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.summary-card--stat {
+  min-height: 100%;
+  background: rgba(255, 255, 255, 0.84);
+}
+
+.summary-value-suffix {
+  margin-left: 4px;
+  font-size: 0.92rem;
+  color: var(--text-soft);
+}
+
+.summary-value--text {
+  font-size: 1.08rem;
+  line-height: 1.3;
+}
+
+.result-dashboard {
+  display: grid;
+  grid-template-columns: minmax(0, 220px) minmax(0, 1fr) minmax(0, 220px);
+  grid-template-areas: "left center right";
+  gap: 16px;
+  align-items: start;
+}
+
+.result-side-stack {
+  display: grid;
+  gap: 12px;
+}
+
+.result-side-stack--left {
+  grid-area: left;
+}
+
+.result-side-stack--right {
+  grid-area: right;
+}
+
+.result-radar-card {
+  grid-area: center;
+  display: grid;
+  gap: 16px;
+  padding: 20px;
+  border-radius: var(--radius-xl);
+  border: 1px solid rgba(27, 62, 68, 0.12);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(247, 243, 236, 0.98));
+  box-shadow: 0 18px 36px rgba(16, 39, 44, 0.1);
+}
+
+.radar-highlight {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  align-items: center;
+}
+
+.radar-highlight-emoji {
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  font-size: 2.35rem;
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.96), rgba(255, 234, 188, 0.96));
+  box-shadow: 0 12px 24px rgba(240, 161, 26, 0.18);
+}
+
+.radar-highlight h3 {
+  font-size: 1.04rem;
+  line-height: 1.35;
+}
+
+.radar-chart-wrap {
+  display: flex;
+  justify-content: center;
+}
+
+.radar-chart-shell {
+  position: relative;
+  width: min(100%, 360px);
+  aspect-ratio: 1;
+}
+
+.radar-chart {
+  width: 100%;
+  height: 100%;
+}
+
+.radar-grid-polygon,
+.radar-grid-spoke {
+  fill: none;
+  stroke: rgba(27, 62, 68, 0.12);
+}
+
+.radar-grid-polygon {
+  stroke-width: 1.15;
+}
+
+.radar-grid-spoke {
+  stroke-width: 1;
+}
+
+.radar-data-fill {
+  fill: rgba(240, 161, 26, 0.18);
+}
+
+.radar-data-line {
+  fill: none;
+  stroke: #f0a11a;
+  stroke-width: 4;
+  stroke-linejoin: round;
+}
+
+.radar-marker {
+  fill: #fff6e6;
+  stroke: #f0a11a;
+  stroke-width: 3;
+}
+
+.radar-center-badge {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  transform: translate(-50%, -50%);
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  border: 1px solid rgba(27, 62, 68, 0.12);
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 10px 24px rgba(16, 39, 44, 0.12);
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
+
+.radar-center-badge strong {
+  display: block;
+  font-family: var(--font-heading);
+  font-size: 1.7rem;
+  line-height: 1;
+}
+
+.radar-center-badge span {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.78rem;
+  color: var(--text-soft);
+}
+
+.radar-caption {
+  margin: 0;
+  text-align: center;
+  color: var(--text-soft);
+  line-height: 1.55;
+}
+
+.metric-orbit {
+  display: grid;
+  gap: 9px;
+  padding: 12px 13px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(27, 62, 68, 0.12);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 10px 20px rgba(16, 39, 44, 0.08);
+}
+
+.metric-orbit--physical {
+  border-color: rgba(11, 140, 127, 0.18);
+}
+
+.metric-orbit--mind {
+  border-color: rgba(240, 161, 26, 0.22);
+}
+
+.metric-orbit-head {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+  align-items: center;
+}
+
+.metric-emoji {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  font-size: 1.46rem;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(239, 246, 244, 0.96));
+}
+
+.metric-name {
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.metric-group {
+  margin-top: 2px;
+  font-size: 0.74rem;
+  color: var(--text-soft);
+}
+
+.metric-value {
+  font-family: var(--font-heading);
+  font-size: 1.58rem;
+  line-height: 1;
+}
+
+.metric-value span {
+  margin-left: 4px;
+  font-size: 0.78rem;
+  color: var(--text-soft);
+}
+
+.metric-track {
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(23, 53, 60, 0.08);
+  overflow: hidden;
+}
+
+.metric-track-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--warn) 0%, #f0b562 38%, #74c89e 100%);
+}
+
+.metric-band {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-soft);
+}
+
+.result-insights {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  align-items: start;
+}
+
+.result-insights .result-actions {
+  align-content: flex-start;
 }
 
 .summary-grid,
@@ -659,6 +919,27 @@ h1 {
     grid-template-columns: 1fr;
   }
 
+  .result-hero--compact,
+  .result-dashboard,
+  .result-insights {
+    grid-template-columns: 1fr;
+  }
+
+  .result-dashboard {
+    grid-template-areas:
+      "center"
+      "left"
+      "right";
+  }
+
+  .result-side-stack {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .result-hero-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
   .feature-grid,
   .summary-grid,
   .result-scale-grid {
@@ -676,6 +957,7 @@ h1 {
   .hero-copy,
   .app-panel,
   .result-hero,
+  .result-radar-card,
   .scale-card,
   .summary-card,
   .question-card,
@@ -704,6 +986,32 @@ h1 {
   .emoji-scale {
     flex-wrap: wrap;
     justify-content: center;
+  }
+
+  .result-hero-stats,
+  .result-side-stack {
+    grid-template-columns: 1fr;
+  }
+
+  .radar-highlight {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+  }
+
+  .radar-highlight-emoji {
+    width: 66px;
+    height: 66px;
+    font-size: 2.1rem;
+  }
+
+  .radar-center-badge {
+    width: 74px;
+    height: 74px;
+  }
+
+  .radar-center-badge strong {
+    font-size: 1.45rem;
   }
 
   .emoji-option {
