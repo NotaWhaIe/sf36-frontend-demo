@@ -484,6 +484,7 @@ if (app) {
 function createDefaultState() {
   return {
     currentScreenIndex: 0,
+    promoSeen: false,
     startedAt: null,
     completedAt: null,
     submissionId: null,
@@ -545,6 +546,11 @@ function resetSyncState() {
 }
 
 function render() {
+  if (state.currentScreenIndex === 0 && !state.promoSeen) {
+    renderPromoLanding();
+    return;
+  }
+
   const screen = SCREENS[state.currentScreenIndex];
 
   if (screen.type === "welcome") {
@@ -554,6 +560,38 @@ function render() {
   } else {
     renderQuestionScreen(screen);
   }
+}
+
+function renderPromoLanding() {
+  app.innerHTML = `
+    <section class="app-panel promo-panel">
+      <div class="promo-inner">
+        <p class="promo-overline">Эксклюзив 2026</p>
+        <h2 class="promo-title">БЕСПЛАТНО • БЕЗ РЕГИСТРАЦИИ • БЕЗ СМС</h2>
+        <p class="promo-subtitle">
+          Пройди тест по самой новейшей супер‑системе SF-36 и узнай профиль качества жизни за пару минут.
+        </p>
+
+        <div class="promo-strip">
+          <span class="promo-chip">Только сегодня</span>
+          <span class="promo-chip">Мгновенный результат</span>
+          <span class="promo-chip">Никаких оплат</span>
+        </div>
+
+        <button class="promo-cta" id="promo-enter-btn" type="button">
+          ПРОЙТИ ТЕСТ ПРЯМО СЕЙЧАС
+        </button>
+
+        <p class="promo-footnote">Шутливая интерактивная заставка для учебного демо.</p>
+      </div>
+    </section>
+  `;
+
+  document.getElementById("promo-enter-btn").addEventListener("click", () => {
+    state.promoSeen = true;
+    saveState();
+    render();
+  });
 }
 
 function renderWelcome() {
