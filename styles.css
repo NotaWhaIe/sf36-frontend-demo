@@ -52,17 +52,17 @@ body {
 .page-shell {
   position: relative;
   z-index: 1;
-  width: min(1180px, calc(100vw - 32px));
+  width: min(1080px, calc(100vw - 24px));
   margin: 0 auto;
-  padding: 40px 0 56px;
+  padding: 30px 0 42px;
 }
 
 .hero {
   display: grid;
   grid-template-columns: minmax(0, 1.7fr) minmax(280px, 0.9fr);
-  gap: 24px;
+  gap: 20px;
   align-items: stretch;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .hero-copy,
@@ -81,7 +81,7 @@ body {
 
 .hero-copy {
   border-radius: var(--radius-xl);
-  padding: 34px 32px;
+  padding: 30px 28px;
   position: relative;
   overflow: hidden;
 }
@@ -98,9 +98,9 @@ body {
 }
 
 .eyebrow {
-  margin: 0 0 12px;
-  font-size: 0.82rem;
-  letter-spacing: 0.18em;
+  margin: 0 0 10px;
+  font-size: 0.74rem;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--accent-strong);
   font-weight: 700;
@@ -114,16 +114,16 @@ h3 {
 }
 
 h1 {
-  font-size: clamp(2rem, 3.7vw, 3.35rem);
+  font-size: clamp(1.85rem, 3.2vw, 3rem);
   line-height: 0.95;
   max-width: 10ch;
 }
 
 .hero-text {
-  margin: 18px 0 0;
+  margin: 14px 0 0;
   max-width: 58ch;
   color: var(--text-soft);
-  font-size: 1.04rem;
+  font-size: 0.95rem;
   line-height: 1.6;
 }
 
@@ -134,11 +134,11 @@ h1 {
 
 .note-card {
   border-radius: var(--radius-lg);
-  padding: 24px;
+  padding: 20px;
 }
 
 .note-card h2 {
-  font-size: 1.02rem;
+  font-size: 0.96rem;
   margin-bottom: 8px;
 }
 
@@ -149,12 +149,12 @@ h1 {
 }
 
 .app-frame {
-  min-height: 620px;
+  min-height: 0;
 }
 
 .app-panel {
   border-radius: 32px;
-  padding: 26px;
+  padding: 22px;
   animation: rise-in 0.35s ease;
 }
 
@@ -170,14 +170,14 @@ h1 {
 
 .welcome-main {
   display: grid;
-  gap: 18px;
+  gap: 16px;
 }
 
 .welcome-card {
   background: var(--surface-strong);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 26px;
+  padding: 22px;
 }
 
 .welcome-card p,
@@ -194,22 +194,22 @@ h1 {
 .feature-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
-  margin-top: 18px;
+  gap: 12px;
+  margin-top: 16px;
 }
 
 .feature-item {
   background: linear-gradient(180deg, #ffffff, var(--surface-muted));
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  padding: 16px;
+  padding: 14px;
 }
 
 .feature-item strong,
 .summary-value {
   display: block;
   font-family: var(--font-heading);
-  font-size: 1.5rem;
+  font-size: 1.35rem;
 }
 
 .feature-item span,
@@ -221,7 +221,7 @@ h1 {
 
 .welcome-side {
   display: grid;
-  gap: 16px;
+  gap: 14px;
 }
 
 .checklist {
@@ -233,7 +233,7 @@ h1 {
 }
 
 .checklist li {
-  padding: 12px 14px;
+  padding: 10px 12px;
   border-radius: var(--radius-sm);
   background: var(--surface-muted);
   border: 1px solid rgba(27, 62, 68, 0.08);
@@ -244,7 +244,7 @@ h1 {
 .result-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 10px;
   align-items: center;
 }
 
@@ -252,9 +252,9 @@ h1 {
   appearance: none;
   border: 0;
   border-radius: 999px;
-  padding: 14px 20px;
+  padding: 12px 18px;
   font-family: var(--font-heading);
-  font-size: 0.98rem;
+  font-size: 0.92rem;
   line-height: 1;
   cursor: pointer;
   transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
@@ -297,7 +297,7 @@ h1 {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 14px;
+  padding: 9px 13px;
   border-radius: 999px;
   background: var(--accent-soft);
   color: var(--accent-strong);
@@ -306,8 +306,8 @@ h1 {
 
 .screen-header {
   display: grid;
-  gap: 12px;
-  margin-bottom: 22px;
+  gap: 10px;
+  margin-bottom: 18px;
 }
 
 .screen-meta {
@@ -322,7 +322,7 @@ h1 {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 12px;
+  padding: 7px 11px;
   border-radius: 999px;
   background: var(--accent-soft);
   color: var(--accent-strong);
@@ -330,7 +330,7 @@ h1 {
 }
 
 .progress-shell {
-  height: 12px;
+  height: 10px;
   border-radius: 999px;
   background: rgba(23, 53, 60, 0.08);
   overflow: hidden;
@@ -344,53 +344,58 @@ h1 {
 }
 
 .screen-title {
-  font-size: clamp(1.55rem, 2vw, 2rem);
+  font-size: clamp(1.4rem, 1.9vw, 1.82rem);
 }
 
 .question-grid {
   display: grid;
-  gap: 18px;
+  gap: 14px;
 }
 
 .question-card {
   border-radius: var(--radius-lg);
-  padding: 22px;
+  padding: 18px;
 }
 
 .question-label {
   display: inline-flex;
-  margin-bottom: 10px;
-  padding: 7px 10px;
+  margin-bottom: 8px;
+  padding: 5px 9px;
   border-radius: 999px;
   background: rgba(11, 140, 127, 0.1);
   color: var(--accent-strong);
-  font-size: 0.82rem;
+  font-size: 0.74rem;
   font-weight: 700;
   letter-spacing: 0.04em;
 }
 
 .question-text {
   margin: 0;
-  font-size: 1.08rem;
+  font-size: 0.98rem;
   line-height: 1.45;
 }
 
 .options-grid {
   display: grid;
-  gap: 10px;
-  margin-top: 16px;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.options-grid--compact {
+  grid-template-columns: repeat(auto-fit, minmax(136px, 1fr));
 }
 
 .option-tile {
   position: relative;
   display: grid;
-  gap: 6px;
-  padding: 16px 18px;
+  gap: 4px;
+  padding: 12px 14px;
   border-radius: var(--radius-md);
   border: 1px solid rgba(27, 62, 68, 0.12);
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(247, 243, 236, 0.95));
   cursor: pointer;
   transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+  min-height: 58px;
 }
 
 .option-tile:hover {
@@ -412,6 +417,8 @@ h1 {
 
 .option-label {
   font-weight: 700;
+  font-size: 0.92rem;
+  line-height: 1.32;
 }
 
 .option-value {
@@ -419,8 +426,59 @@ h1 {
   color: var(--text-soft);
 }
 
+.emoji-scale {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.emoji-option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 66px;
+  height: 66px;
+  border-radius: 50%;
+  border: 2px solid rgba(27, 62, 68, 0.12);
+  background: rgba(255, 255, 255, 0.72);
+  cursor: pointer;
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+
+.emoji-option:hover {
+  transform: translateY(-1px);
+  border-color: rgba(11, 140, 127, 0.26);
+}
+
+.emoji-option input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.emoji-option.is-selected {
+  border-color: rgba(11, 140, 127, 0.52);
+  background: linear-gradient(180deg, #ffffff, rgba(216, 240, 236, 0.92));
+  box-shadow: 0 10px 18px rgba(11, 140, 127, 0.12);
+}
+
+.emoji-face {
+  font-size: 2.45rem;
+  line-height: 1;
+}
+
+.emoji-caption {
+  margin: 10px 0 0;
+  color: var(--text-soft);
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+
 .status-banner {
-  padding: 16px 18px;
+  padding: 14px 16px;
   border-radius: var(--radius-md);
   border-left: 4px solid var(--warn);
 }
@@ -436,11 +494,11 @@ h1 {
 
 .result-hero {
   border-radius: var(--radius-xl);
-  padding: 28px;
+  padding: 24px;
 }
 
 .result-hero h2 {
-  font-size: clamp(1.7rem, 2.4vw, 2.4rem);
+  font-size: clamp(1.5rem, 2.1vw, 2.1rem);
 }
 
 .result-hero p {
@@ -458,12 +516,12 @@ h1 {
 
 .summary-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin-top: 20px;
+  margin-top: 18px;
 }
 
 .summary-card {
   border-radius: var(--radius-md);
-  padding: 18px;
+  padding: 16px;
 }
 
 .result-scale-grid {
@@ -472,7 +530,7 @@ h1 {
 
 .scale-card {
   border-radius: var(--radius-lg);
-  padding: 20px;
+  padding: 18px;
 }
 
 .scale-group-label {
@@ -490,15 +548,15 @@ h1 {
 }
 
 .scale-score {
-  margin-top: 14px;
+  margin-top: 12px;
   font-family: var(--font-heading);
-  font-size: 2.25rem;
+  font-size: 2rem;
   line-height: 1;
 }
 
 .scale-meter {
-  margin-top: 14px;
-  height: 12px;
+  margin-top: 12px;
+  height: 10px;
   border-radius: 999px;
   background: rgba(23, 53, 60, 0.08);
   overflow: hidden;
@@ -511,7 +569,7 @@ h1 {
 }
 
 .scale-footnote {
-  margin-top: 12px;
+  margin-top: 10px;
   line-height: 1.55;
 }
 
@@ -527,8 +585,8 @@ h1 {
 
 .mini-list {
   display: grid;
-  gap: 10px;
-  margin: 14px 0 0;
+  gap: 8px;
+  margin: 12px 0 0;
 }
 
 .mini-item {
@@ -536,7 +594,7 @@ h1 {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 12px 14px;
+  padding: 10px 12px;
   border-radius: var(--radius-sm);
   background: var(--surface-muted);
   border: 1px solid rgba(27, 62, 68, 0.08);
@@ -552,7 +610,7 @@ h1 {
 
 .support-text {
   margin: 0;
-  font-size: 0.92rem;
+  font-size: 0.86rem;
   line-height: 1.5;
 }
 
@@ -621,5 +679,19 @@ h1 {
   .result-actions {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .emoji-scale {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .emoji-option {
+    width: 58px;
+    height: 58px;
+  }
+
+  .emoji-face {
+    font-size: 2.1rem;
   }
 }

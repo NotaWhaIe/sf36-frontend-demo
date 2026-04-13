@@ -2,18 +2,18 @@ const STORAGE_KEY = "sf36-frontend-draft-v1";
 
 const OPTION_SETS = {
   q1: [
-    { value: 5, label: "Отличное" },
-    { value: 4, label: "Очень хорошее" },
-    { value: 3, label: "Хорошее" },
-    { value: 2, label: "Посредственное" },
-    { value: 1, label: "Плохое" },
+    { value: 5, label: "Отличное", emoji: "😄" },
+    { value: 4, label: "Очень хорошее", emoji: "🙂" },
+    { value: 3, label: "Хорошее", emoji: "😐" },
+    { value: 2, label: "Посредственное", emoji: "🙁" },
+    { value: 1, label: "Плохое", emoji: "😠" },
   ],
   q2: [
-    { value: 1, label: "Значительно лучше, чем год назад" },
-    { value: 2, label: "Несколько лучше, чем год назад" },
-    { value: 3, label: "Примерно так же, как год назад" },
-    { value: 4, label: "Несколько хуже, чем год назад" },
-    { value: 5, label: "Гораздо хуже, чем год назад" },
+    { value: 1, label: "Значительно лучше, чем год назад", emoji: "😄" },
+    { value: 2, label: "Несколько лучше, чем год назад", emoji: "🙂" },
+    { value: 3, label: "Примерно так же, как год назад", emoji: "😐" },
+    { value: 4, label: "Несколько хуже, чем год назад", emoji: "🙁" },
+    { value: 5, label: "Гораздо хуже, чем год назад", emoji: "😠" },
   ],
   q3to12: [
     { value: 1, label: "Да, значительно ограничивает" },
@@ -25,11 +25,11 @@ const OPTION_SETS = {
     { value: 2, label: "Нет" },
   ],
   q20: [
-    { value: 5, label: "Совсем не мешало" },
-    { value: 4, label: "Немного" },
-    { value: 3, label: "Умеренно" },
-    { value: 2, label: "Сильно" },
-    { value: 1, label: "Очень сильно" },
+    { value: 5, label: "Совсем не мешало", emoji: "😄" },
+    { value: 4, label: "Немного", emoji: "🙂" },
+    { value: 3, label: "Умеренно", emoji: "😐" },
+    { value: 2, label: "Сильно", emoji: "🙁" },
+    { value: 1, label: "Очень сильно", emoji: "😠" },
   ],
   q21: [
     { value: 6, label: "Совсем не испытывал(а)" },
@@ -40,11 +40,11 @@ const OPTION_SETS = {
     { value: 1, label: "Очень сильную" },
   ],
   q22: [
-    { value: 5, label: "Совсем не мешала" },
-    { value: 4, label: "Немного" },
-    { value: 3, label: "Умеренно" },
-    { value: 2, label: "Сильно" },
-    { value: 1, label: "Очень сильно" },
+    { value: 5, label: "Совсем не мешала", emoji: "😄" },
+    { value: 4, label: "Немного", emoji: "🙂" },
+    { value: 3, label: "Умеренно", emoji: "😐" },
+    { value: 2, label: "Сильно", emoji: "🙁" },
+    { value: 1, label: "Очень сильно", emoji: "😠" },
   ],
   q23to31: [
     { value: 1, label: "Все время" },
@@ -55,18 +55,18 @@ const OPTION_SETS = {
     { value: 6, label: "Ни разу" },
   ],
   q32: [
-    { value: 1, label: "Все время" },
-    { value: 2, label: "Большую часть времени" },
-    { value: 3, label: "Иногда" },
-    { value: 4, label: "Редко" },
-    { value: 5, label: "Ни разу" },
+    { value: 1, label: "Все время", emoji: "😠" },
+    { value: 2, label: "Большую часть времени", emoji: "🙁" },
+    { value: 3, label: "Иногда", emoji: "😐" },
+    { value: 4, label: "Редко", emoji: "🙂" },
+    { value: 5, label: "Ни разу", emoji: "😄" },
   ],
   q33to36: [
-    { value: 1, label: "Определенно верно" },
-    { value: 2, label: "В основном верно" },
-    { value: 3, label: "Не знаю" },
-    { value: 4, label: "В основном неверно" },
-    { value: 5, label: "Определенно неверно" },
+    { value: 1, label: "Определенно верно", emoji: "😠" },
+    { value: 2, label: "В основном верно", emoji: "🙁" },
+    { value: 3, label: "Не знаю", emoji: "😐" },
+    { value: 4, label: "В основном неверно", emoji: "🙂" },
+    { value: 5, label: "Определенно неверно", emoji: "😄" },
   ],
 };
 
@@ -656,12 +656,44 @@ function renderQuestionScreen(screen) {
 function renderQuestionCard(question) {
   const options = OPTION_SETS[question.optionsKey];
   const selectedValue = state.answers[question.id];
+  const isEmojiScale = options.length === 5 && options.every((option) => option.emoji);
+  const selectedLabel = getAnswerLabel(question.id, selectedValue);
+
+  if (isEmojiScale) {
+    return `
+      <article class="question-card">
+        <span class="question-label">Вопрос ${question.number}</span>
+        <p class="question-text">${question.text}</p>
+        <div class="emoji-scale" role="radiogroup" aria-label="Варианты ответа для вопроса ${question.number}">
+          ${options
+            .map((option) => {
+              const isSelected = Number(selectedValue) === option.value;
+              return `
+                <label class="emoji-option ${isSelected ? "is-selected" : ""}" title="${option.label}">
+                  <input
+                    type="radio"
+                    name="${question.id}"
+                    value="${option.value}"
+                    ${isSelected ? "checked" : ""}
+                  >
+                  <span class="emoji-face" aria-hidden="true">${option.emoji}</span>
+                </label>
+              `;
+            })
+            .join("")}
+        </div>
+        <p class="emoji-caption">
+          ${selectedLabel ? `Выбрано: ${selectedLabel}` : "Нажмите на смайлик, который лучше всего подходит"}
+        </p>
+      </article>
+    `;
+  }
 
   return `
     <article class="question-card">
       <span class="question-label">Вопрос ${question.number}</span>
       <p class="question-text">${question.text}</p>
-      <div class="options-grid">
+      <div class="options-grid options-grid--compact">
         ${options
           .map((option) => {
             const isSelected = Number(selectedValue) === option.value;
@@ -674,7 +706,6 @@ function renderQuestionCard(question) {
                   ${isSelected ? "checked" : ""}
                 >
                 <span class="option-label">${option.label}</span>
-                <span class="option-value">Балльный вес: ${option.value}</span>
               </label>
             `;
           })
