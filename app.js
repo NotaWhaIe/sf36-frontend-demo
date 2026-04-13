@@ -571,6 +571,9 @@ function renderWelcome() {
             Сайт работает на статическом фронтенде и подходит для показа на лекции. Расчет выполняется в браузере,
             а результаты можно сохранить в Google Sheets без отдельного сервера.
           </p>
+          <p class="welcome-outcome">
+            После прохождения пользователь получит итоговый балл от 0 до 100, профиль из 8 шкал качества жизни и короткую интерпретацию результата.
+          </p>
           <div class="feature-grid">
             <div class="feature-item">
               <strong>36</strong>
@@ -621,30 +624,6 @@ function renderWelcome() {
           </div>
         </article>
       </div>
-
-      <aside class="welcome-side">
-        <article class="welcome-card">
-          <h3>Что важно для показа</h3>
-          <ul class="checklist">
-            <li>Расчет шкал повторяет текущую Python-логику бота.</li>
-            <li>Черновик хранится только в браузере на этом устройстве.</li>
-            <li>На экране результата можно скачать JSON и отправить ответы в Google Sheets.</li>
-          </ul>
-        </article>
-        <article class="welcome-card">
-          <h3>Хранение результатов</h3>
-          <p class="support-text">
-            ${hasSheetsIntegration
-              ? "Таблица уже подключена: после завершения опроса сайт сам предложит сохранить результат в Google Sheets."
-              : "Интерфейс уже готов к Google Sheets. Осталось опубликовать Apps Script и вставить его URL в config.js."}
-          </p>
-          ${
-            hasDraft
-              ? '<div class="draft-chip">Найден локальный черновик ответов</div>'
-              : ""
-          }
-        </article>
-      </aside>
     </section>
   `;
 
@@ -1247,15 +1226,17 @@ function renderRadarChart(normalizedScores) {
   }).join("");
 
   return `
-    <div class="radar-chart-shell">
-      <svg class="radar-chart" viewBox="0 0 ${size} ${size}" aria-hidden="true" focusable="false">
-        ${levelPolygons}
-        ${spokes}
-        <polygon class="radar-data-fill" points="${dataPoints}"></polygon>
-        <polygon class="radar-data-line" points="${dataPoints}"></polygon>
-        ${markers}
-      </svg>
-      <div class="radar-center-badge">
+    <div class="radar-chart-wrap">
+      <div class="radar-chart-shell">
+        <svg class="radar-chart" viewBox="0 0 ${size} ${size}" aria-hidden="true" focusable="false">
+          ${levelPolygons}
+          ${spokes}
+          <polygon class="radar-data-fill" points="${dataPoints}"></polygon>
+          <polygon class="radar-data-line" points="${dataPoints}"></polygon>
+          ${markers}
+        </svg>
+      </div>
+      <div class="radar-side-badge">
         <strong>${averageScore}</strong>
         <span>/100</span>
       </div>

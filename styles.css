@@ -170,7 +170,7 @@ h1 {
 }
 
 .welcome-layout {
-  grid-template-columns: minmax(0, 1.3fr) minmax(280px, 0.8fr);
+  grid-template-columns: 1fr;
 }
 
 .welcome-main {
@@ -224,14 +224,18 @@ h1 {
   color: var(--text-soft);
 }
 
-.welcome-side {
-  display: grid;
-  gap: 14px;
-}
-
 .field-stack {
   display: grid;
   gap: 8px;
+}
+
+.welcome-outcome {
+  margin: 12px 0 0;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(11, 140, 127, 0.14);
+  background: linear-gradient(180deg, rgba(216, 240, 236, 0.72), rgba(255, 255, 255, 0.9));
+  line-height: 1.55;
 }
 
 .field-label {
@@ -669,8 +673,10 @@ h1 {
 }
 
 .radar-chart-wrap {
-  display: flex;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 12px;
 }
 
 .radar-chart-shell {
@@ -715,29 +721,27 @@ h1 {
   stroke-width: 3;
 }
 
-.radar-center-badge {
-  position: absolute;
-  inset: 50% auto auto 50%;
-  transform: translate(-50%, -50%);
-  width: 84px;
-  height: 84px;
-  border-radius: 50%;
+.radar-side-badge {
+  width: 94px;
+  height: 94px;
+  border-radius: 22px;
   border: 1px solid rgba(27, 62, 68, 0.12);
   background: rgba(255, 255, 255, 0.96);
   box-shadow: 0 10px 24px rgba(16, 39, 44, 0.12);
   display: grid;
   place-items: center;
   text-align: center;
+  margin-bottom: 22px;
 }
 
-.radar-center-badge strong {
+.radar-side-badge strong {
   display: block;
   font-family: var(--font-heading);
   font-size: 1.7rem;
   line-height: 1;
 }
 
-.radar-center-badge span {
+.radar-side-badge span {
   display: block;
   margin-top: 2px;
   font-size: 0.78rem;
@@ -1103,12 +1107,20 @@ h1 {
     font-size: 2.1rem;
   }
 
-  .radar-center-badge {
-    width: 74px;
-    height: 74px;
+  .radar-chart-wrap {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    gap: 8px;
   }
 
-  .radar-center-badge strong {
+  .radar-side-badge {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 0;
+    border-radius: 18px;
+  }
+
+  .radar-side-badge strong {
     font-size: 1.45rem;
   }
 
