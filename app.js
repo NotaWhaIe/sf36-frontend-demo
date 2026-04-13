@@ -1,4 +1,9 @@
 const STORAGE_KEY = "sf36-frontend-draft-v1";
+const SHEETS_FALLBACK_SHEET_NAME = "Анонимно";
+const APP_CONFIG = {
+  spreadsheetUrl: globalThis.SF36_CONFIG?.googleSheetsSpreadsheetUrl || "",
+  webAppUrl: globalThis.SF36_CONFIG?.googleSheetsWebAppUrl || "",
+};
 
 const OPTION_SETS = {
   q1: [
@@ -482,8 +487,13 @@ function createDefaultState() {
     startedAt: null,
     completedAt: null,
     submissionId: null,
+    participantName: "",
     answers: {},
     lastError: "",
+    syncStatus: APP_CONFIG.webAppUrl ? "idle" : "needs_setup",
+    syncMessage: "",
+    lastSyncedSubmissionId: null,
+    lastSyncedSheetName: "",
   };
 }
 
@@ -527,6 +537,13 @@ function clearState() {
   }
 }
 
+function resetSyncState() {
+  state.syncStatus = APP_CONFIG.webAppUrl ? "idle" : "needs_setup";
+  state.syncMessage = "";
+  state.lastSyncedSubmissionId = null;
+  state.lastSyncedSheetName = "";
+}
+
 function render() {
   const screen = SCREENS[state.currentScreenIndex];
 
@@ -541,6 +558,8 @@ function render() {
 
 function renderWelcome() {
   const hasDraft = countAnsweredQuestions() > 0;
+  const hasSheetsIntegration = Boolean(APP_CONFIG.webAppUrl);
+  const participantName = state.participantName || "";
 
   app.innerHTML = `
     <section class="app-panel welcome-layout">
@@ -549,8 +568,8 @@ function renderWelcome() {
           <p class="eyebrow">Демонстрационный режим</p>
           <h2>Опросник SF-36 в формате веб-сайта</h2>
           <p class="hero-text">
-            Сайт работает полностью на статическом фронтенде и может быть развернут на GitHub Pages.
-            Эта версия не отправляет ответы в интернет и нужна для проверки интерфейса, логики и расчета.
+            Сайт работает на статическом фронтенде и подходит для показа на лекции. Расчет выполняется в браузере,
+            а результаты можно сохранить в Google Sheets без отдельного сервера.
           </p>
           <div class="feature-grid">
             <div class="feature-item">
@@ -562,9 +581,28 @@ function renderWelcome() {
               <span>итоговых шкал от 0 до 100</span>
             </div>
             <div class="feature-item">
-              <strong>0</strong>
-              <span>серверов и внешних зависимостей</span>
+              <strong>${hasSheetsIntegration ? "Sheets" : "JSON"}</strong>
+              <span>${hasSheetsIntegration ? "результаты можно отправить в таблицу" : "результат можно скачать или подготовить к таблице"}</span>
             </div>
+          </div>
+        </article>
+
+        <article class="welcome-card">
+          <h3>Кто проходит тест</h3>
+          <div class="field-stack">
+            <label class="field-label" for="participant-name-input">ФИО участника</label>
+            <input
+              class="text-input"
+              id="participant-name-input"
+              name="participantName"
+              type="text"
+              maxlength="120"
+              placeholder="Например, Иванов Иван Иванович"
+              value="${escapeHtml(participantName)}"
+            >
+            <p class="field-hint">
+              Поле необязательное. Если оставить пустым, ответы сохранятся на лист <strong>${SHEETS_FALLBACK_SHEET_NAME}</strong>.
+            </p>
           </div>
         </article>
 
@@ -590,13 +628,15 @@ function renderWelcome() {
           <ul class="checklist">
             <li>Расчет шкал повторяет текущую Python-логику бота.</li>
             <li>Черновик хранится только в браузере на этом устройстве.</li>
-            <li>На экране результата можно скачать JSON-представление расчета.</li>
+            <li>На экране результата можно скачать JSON и отправить ответы в Google Sheets.</li>
           </ul>
         </article>
         <article class="welcome-card">
-          <h3>Заметка</h3>
+          <h3>Хранение результатов</h3>
           <p class="support-text">
-            Следующим шагом сюда будет просто добавить отправку обезличенных данных в Google Apps Script и Google Sheets.
+            ${hasSheetsIntegration
+              ? "Таблица уже подключена: после завершения опроса сайт сам предложит сохранить результат в Google Sheets."
+              : "Интерфейс уже готов к Google Sheets. Осталось опубликовать Apps Script и вставить его URL в config.js."}
           </p>
           ${
             hasDraft
@@ -608,7 +648,21 @@ function renderWelcome() {
     </section>
   `;
 
+  const participantInput = document.getElementById("participant-name-input");
+  participantInput.addEventListener("input", (event) => {
+    const nextValue = event.target.value;
+    if (state.participantName === nextValue) {
+      return;
+    }
+    state.participantName = nextValue;
+    state.submissionId = null;
+    state.completedAt = null;
+    resetSyncState();
+    saveState();
+  });
+
   document.getElementById("start-btn").addEventListener("click", () => {
+    state.participantName = participantInput.value.trim();
     if (!state.startedAt) {
       state.startedAt = new Date().toISOString();
     }
@@ -616,6 +670,7 @@ function renderWelcome() {
       state.currentScreenIndex = 1;
     }
     state.lastError = "";
+    resetSyncState();
     saveState();
     render();
   });
@@ -624,6 +679,7 @@ function renderWelcome() {
   if (restartButton) {
     restartButton.addEventListener("click", () => {
       clearState();
+      state.participantName = participantInput.value.trim();
       state.startedAt = new Date().toISOString();
       state.currentScreenIndex = 1;
       saveState();
@@ -766,6 +822,7 @@ function renderResults() {
   const bestScaleKey = topScales[0];
   const focusScaleKey = lowScales[0];
   const comparisonLabel = getAnswerLabel("q2", state.answers.q2) || "Нет данных";
+  const participantLabel = getParticipantLabel();
 
   app.innerHTML = `
     <section class="app-panel result-panel">
@@ -776,6 +833,7 @@ function renderResults() {
           <p>
             Все восемь шкал собраны в одной диаграмме. Чем ближе контур к внешнему краю, тем выше показатель по соответствующей шкале.
           </p>
+          <div class="result-person-chip">${escapeHtml(participantLabel)}</div>
         </div>
 
         <div class="result-hero-stats">
@@ -838,11 +896,13 @@ function renderResults() {
           </p>
         </article>
 
-        <div class="result-actions">
-          <button class="btn btn-primary" id="download-json-btn">Скачать JSON результата</button>
-          <button class="btn btn-secondary" id="review-btn">Вернуться к вопросам</button>
-          <button class="btn btn-ghost" id="reset-btn">Очистить и начать заново</button>
-        </div>
+        ${renderSheetSyncCard()}
+      </div>
+
+      <div class="result-actions result-actions--footer">
+        <button class="btn btn-primary" id="download-json-btn">Скачать JSON результата</button>
+        <button class="btn btn-secondary" id="review-btn">Вернуться к вопросам</button>
+        <button class="btn btn-ghost" id="reset-btn">Очистить и начать заново</button>
       </div>
     </section>
   `;
@@ -855,7 +915,9 @@ function renderResults() {
   });
 
   document.getElementById("reset-btn").addEventListener("click", () => {
+    const participantName = state.participantName;
     clearState();
+    state.participantName = participantName;
     state.startedAt = new Date().toISOString();
     state.currentScreenIndex = 1;
     saveState();
@@ -865,6 +927,22 @@ function renderResults() {
   document.getElementById("download-json-btn").addEventListener("click", () => {
     downloadPayload(buildSubmissionPayload(results));
   });
+
+  const retryButton = document.getElementById("sheet-sync-retry-btn");
+  if (retryButton) {
+    retryButton.addEventListener("click", () => {
+      syncResultsToGoogleSheets(results, { force: true });
+    });
+  }
+
+  const saveButton = document.getElementById("sheet-sync-save-btn");
+  if (saveButton) {
+    saveButton.addEventListener("click", () => {
+      syncResultsToGoogleSheets(results, { force: true });
+    });
+  }
+
+  syncResultsToGoogleSheets(results);
 }
 
 function renderScaleCard(scaleKey, score) {
@@ -891,6 +969,192 @@ function renderMiniScale(scaleKey, score) {
       <span class="mini-score">${score}/100</span>
     </div>
   `;
+}
+
+function renderSheetSyncCard() {
+  const stateMeta = getSheetSyncMeta();
+  const tableAction = APP_CONFIG.spreadsheetUrl
+    ? `<a class="btn btn-secondary" href="${APP_CONFIG.spreadsheetUrl}" target="_blank" rel="noreferrer">Открыть таблицу</a>`
+    : "";
+
+  return `
+    <article class="summary-card summary-card--sync summary-card--${stateMeta.tone}" id="sheet-sync-card">
+      <div class="scale-group-label">Google Sheets</div>
+      <p class="summary-copy" id="sheet-sync-message">${stateMeta.message}</p>
+      ${
+        state.lastSyncedSheetName
+          ? `<div class="sync-chip" id="sheet-sync-sheet">Лист: ${escapeHtml(state.lastSyncedSheetName)}</div>`
+          : '<div class="sync-chip sync-chip--ghost" id="sheet-sync-sheet">Лист будет выбран автоматически</div>'
+      }
+      <div class="result-actions result-actions--sync">
+        ${stateMeta.action === "save" ? '<button class="btn btn-primary" id="sheet-sync-save-btn">Сохранить в таблицу</button>' : ""}
+        ${stateMeta.action === "retry" ? '<button class="btn btn-primary" id="sheet-sync-retry-btn">Повторить отправку</button>' : ""}
+        ${tableAction}
+      </div>
+    </article>
+  `;
+}
+
+function getSheetSyncMeta() {
+  if (!APP_CONFIG.webAppUrl) {
+    return {
+      tone: "muted",
+      action: "none",
+      message: "Чтобы сайт сам писал результаты в таблицу, нужно опубликовать Apps Script и вставить его URL в config.js.",
+    };
+  }
+
+  switch (state.syncStatus) {
+    case "saving":
+      return {
+        tone: "info",
+        action: "none",
+        message: "Сохраняем ответы в Google Sheets…",
+      };
+    case "saved":
+      return {
+        tone: "success",
+        action: "none",
+        message: "Результат сохранен в Google Sheets.",
+      };
+    case "sent":
+      return {
+        tone: "success",
+        action: "none",
+        message: "Запрос на сохранение отправлен. Если Apps Script опубликован правильно, строка уже появится в таблице.",
+      };
+    case "error":
+      return {
+        tone: "danger",
+        action: "retry",
+        message: state.syncMessage || "Не удалось отправить результат в таблицу.",
+      };
+    default:
+      return {
+        tone: "muted",
+        action: "save",
+        message: "Таблица подключена. Можно сохранить этот результат в отдельный лист по имени участника.",
+      };
+  }
+}
+
+async function syncResultsToGoogleSheets(results, options = {}) {
+  if (!APP_CONFIG.webAppUrl) {
+    return;
+  }
+
+  const payload = buildSubmissionPayload(results);
+  if (!options.force && state.lastSyncedSubmissionId === payload.submission_id && ["saved", "sent"].includes(state.syncStatus)) {
+    return;
+  }
+
+  state.syncStatus = "saving";
+  state.syncMessage = "";
+  saveState();
+  updateSheetSyncUI();
+
+  try {
+    const response = await sendSubmissionToGoogleSheets(payload);
+    state.lastSyncedSubmissionId = payload.submission_id;
+    state.lastSyncedSheetName = response.sheet_name || payload.sheet_name_hint || SHEETS_FALLBACK_SHEET_NAME;
+    state.syncStatus = response.confirmed ? "saved" : "sent";
+    state.syncMessage = "";
+    saveState();
+    updateSheetSyncUI();
+  } catch (error) {
+    state.syncStatus = "error";
+    state.syncMessage = error instanceof Error ? error.message : "Не удалось сохранить результат.";
+    saveState();
+    updateSheetSyncUI();
+  }
+}
+
+async function sendSubmissionToGoogleSheets(payload) {
+  const body = JSON.stringify(payload);
+
+  try {
+    const response = await fetch(APP_CONFIG.webAppUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "text/plain;charset=utf-8",
+      },
+      body,
+      redirect: "follow",
+    });
+
+    if (!response.ok) {
+      throw new Error(`Google Sheets вернул статус ${response.status}.`);
+    }
+
+    const text = await response.text();
+    if (!text) {
+      return { confirmed: true, sheet_name: payload.sheet_name_hint };
+    }
+
+    const parsed = JSON.parse(text);
+    if (parsed.ok === false) {
+      throw new Error(parsed.error || "Apps Script не подтвердил сохранение.");
+    }
+
+    return {
+      confirmed: true,
+      sheet_name: parsed.sheet_name || parsed.sheetName || payload.sheet_name_hint,
+    };
+  } catch (error) {
+    try {
+      await fetch(APP_CONFIG.webAppUrl, {
+        method: "POST",
+        mode: "no-cors",
+        headers: {
+          "Content-Type": "text/plain;charset=utf-8",
+        },
+        body,
+      });
+
+      return {
+        confirmed: false,
+        sheet_name: payload.sheet_name_hint,
+      };
+    } catch {
+      throw error;
+    }
+  }
+}
+
+function updateSheetSyncUI() {
+  const message = document.getElementById("sheet-sync-message");
+  const sheetChip = document.getElementById("sheet-sync-sheet");
+  const card = document.getElementById("sheet-sync-card");
+
+  if (!message || !sheetChip || !card) {
+    return;
+  }
+
+  const meta = getSheetSyncMeta();
+  message.textContent = meta.message;
+  card.className = `summary-card summary-card--sync summary-card--${meta.tone}`;
+
+  if (state.lastSyncedSheetName) {
+    sheetChip.textContent = `Лист: ${state.lastSyncedSheetName}`;
+    sheetChip.className = "sync-chip";
+  } else {
+    sheetChip.textContent = "Лист будет выбран автоматически";
+    sheetChip.className = "sync-chip sync-chip--ghost";
+  }
+}
+
+function getParticipantLabel() {
+  const rawName = (state.participantName || "").trim();
+  return rawName || SHEETS_FALLBACK_SHEET_NAME;
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
 }
 
 function renderResultMetric(scaleKey, score) {
@@ -991,6 +1255,7 @@ function handleAnswerChange(event) {
   state.completedAt = null;
   state.submissionId = null;
   state.lastError = "";
+  resetSyncState();
   saveState();
   updateQuestionCardUI(questionId);
   updateQuestionScreenProgress();
@@ -1194,12 +1459,16 @@ function createSubmissionId() {
 }
 
 function buildSubmissionPayload(results) {
+  const participantName = (state.participantName || "").trim() || null;
+
   return {
     submission_id: state.submissionId || createSubmissionId(),
     calculator: "SF-36",
-    calculator_version: "frontend-v1",
+    calculator_version: "frontend-v2",
     submitted_at: state.completedAt || new Date().toISOString(),
     duration_sec: getDurationSeconds(),
+    participant_name: participantName,
+    sheet_name_hint: participantName || SHEETS_FALLBACK_SHEET_NAME,
     answers: QUESTIONS.reduce((acc, question) => {
       acc[question.id] = state.answers[question.id];
       return acc;

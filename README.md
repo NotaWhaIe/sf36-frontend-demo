@@ -6,9 +6,19 @@
 
 - 36 вопросов в формате многоэкранного wizard-интерфейса
 - расчет 8 шкал прямо в браузере
-- экран результата с краткой интерпретацией
+- компактный экран результата с radar-диаграммой
 - локальный черновик в `localStorage`
+- необязательное поле `ФИО` на старте
 - скачивание результата в `JSON`
+- готовая интеграция с `Google Sheets` через `Google Apps Script`
+
+## Структура
+
+- [index.html](./index.html) — оболочка страницы
+- [config.js](./config.js) — конфиг подключения к Google Sheets
+- [app.js](./app.js) — логика интерфейса, расчета и отправки результата
+- [styles.css](./styles.css) — оформление
+- [google-apps-script/Code.gs](./google-apps-script/Code.gs) — серверная часть для Google Sheets
 
 ## Локальный запуск
 
@@ -24,12 +34,20 @@ python -m http.server 8080
 http://localhost:8080
 ```
 
-## Следующий шаг
+## Google Sheets
 
-Следующее минимальное расширение для MVP:
+Прямо по URL таблицы сайт записывать строки не может, поэтому используется `Google Apps Script` как веб-приложение.
 
-- добавить `Google Apps Script`
-- принимать `POST` с `answers/raw_scores/normalized_scores`
-- писать строку в `Google Sheets`
+Что уже подготовлено:
 
-Так фронтенд останется на `GitHub Pages`, а данные будут сохраняться в таблицу.
+- фронтенд отправляет результат в `Google Sheets Web App`
+- payload содержит `ФИО`, ответы `q1-q36`, raw-оценки и итоговые шкалы
+- скрипт создает лист по имени участника
+- если имя пустое, используется лист `Анонимно`
+
+Как включить:
+
+1. Открой [google-apps-script/Code.gs](./google-apps-script/Code.gs).
+2. Вставь его в `Extensions -> Apps Script` у своей таблицы.
+3. Опубликуй как `Web app`.
+4. Вставь URL веб-приложения в [config.js](./config.js) в поле `googleSheetsWebAppUrl`.
