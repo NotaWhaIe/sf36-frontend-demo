@@ -678,9 +678,38 @@ h1 {
 
 .radar-chart-wrap {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: end;
-  gap: 12px;
+  gap: 14px;
+}
+
+.radar-human-shell {
+  width: 138px;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+}
+
+.radar-human {
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 8px 12px rgba(16, 39, 44, 0.1));
+}
+
+.human-meter-base {
+  fill: rgba(23, 53, 60, 0.06);
+}
+
+.human-meter-outline {
+  fill: none;
+  stroke: rgba(27, 62, 68, 0.62);
+  stroke-width: 2;
+}
+
+.human-meter-label {
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+  color: var(--accent-strong);
 }
 
 .radar-chart-shell {
@@ -726,9 +755,9 @@ h1 {
 }
 
 .radar-side-badge {
-  width: 94px;
-  height: 94px;
-  border-radius: 22px;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
   border: 1px solid rgba(27, 62, 68, 0.12);
   background: rgba(255, 255, 255, 0.96);
   box-shadow: 0 10px 24px rgba(16, 39, 44, 0.12);
@@ -1114,7 +1143,12 @@ h1 {
   .radar-chart-wrap {
     grid-template-columns: 1fr;
     justify-items: center;
-    gap: 8px;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .radar-human-shell {
+    width: 118px;
   }
 
   .radar-side-badge {
