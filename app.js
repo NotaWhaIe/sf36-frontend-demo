@@ -546,11 +546,6 @@ function resetSyncState() {
 }
 
 function render() {
-  if (shouldShowPromoLanding()) {
-    renderPromoLanding();
-    return;
-  }
-
   const screen = SCREENS[state.currentScreenIndex];
 
   if (screen.type === "welcome") {

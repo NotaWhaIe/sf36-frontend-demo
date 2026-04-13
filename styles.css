@@ -277,6 +277,13 @@ h1 {
   animation: promo-pulse 1.35s ease-in-out infinite;
 }
 
+.promo-cta-link {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none;
+}
+
 .promo-cta:hover {
   transform: translateY(-1px);
 }
