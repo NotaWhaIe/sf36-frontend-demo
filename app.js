@@ -546,7 +546,7 @@ function resetSyncState() {
 }
 
 function render() {
-  if (!promoLandingDismissed) {
+  if (shouldShowPromoLanding()) {
     renderPromoLanding();
     return;
   }
@@ -560,6 +560,15 @@ function render() {
   } else {
     renderQuestionScreen(screen);
   }
+}
+
+function shouldShowPromoLanding() {
+  const isInitialWelcome =
+    state.currentScreenIndex === 0 &&
+    !state.startedAt &&
+    countAnsweredQuestions() === 0;
+
+  return !promoLandingDismissed && isInitialWelcome;
 }
 
 function renderPromoLanding() {
