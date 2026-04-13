@@ -767,12 +767,12 @@ function renderResults() {
   const lowScales = [...SCALE_ORDER]
     .sort((left, right) => results.normalized[left] - results.normalized[right])
     .slice(0, 3);
+  const bestScaleKey = topScales[0];
+  const focusScaleKey = lowScales[0];
   const durationSeconds = getDurationSeconds();
   const averageScore = Math.round(
     SCALE_ORDER.reduce((sum, scaleKey) => sum + results.normalized[scaleKey], 0) / SCALE_ORDER.length,
   );
-  const bestScaleKey = topScales[0];
-  const focusScaleKey = lowScales[0];
   const participantLabel = getParticipantLabel();
 
   app.innerHTML = `
@@ -803,21 +803,24 @@ function renderResults() {
         </div>
       </article>
 
-      <div class="result-dashboard">
-        <div class="result-side-stack result-side-stack--left">
-          ${SCALE_ORDER.slice(0, 4).map((scaleKey) => renderResultMetric(scaleKey, results.normalized[scaleKey])).join("")}
-        </div>
-
-        <article class="result-radar-card">
-          ${renderRadarChart(results.normalized)}
+      <div class="result-orbit-layout">
+        <article class="result-radar-card result-radar-card--orbit">
+          <div class="metrics-orbit">
+            <div class="metrics-orbit-center">
+              ${renderRadarChart(results.normalized)}
+            </div>
+            ${SCALE_ORDER.map(
+              (scaleKey, index) => `
+                <div class="orbit-slot orbit-slot--${index}">
+                  ${renderResultMetric(scaleKey, results.normalized[scaleKey])}
+                </div>
+              `,
+            ).join("")}
+          </div>
         </article>
-
-        <div class="result-side-stack result-side-stack--right">
-          ${SCALE_ORDER.slice(4).map((scaleKey) => renderResultMetric(scaleKey, results.normalized[scaleKey])).join("")}
-        </div>
       </div>
 
-      <div class="result-insights">
+      <div class="result-insights result-insights--single">
         <article class="summary-card">
           <div class="scale-group-label">Сильная сторона</div>
           <p class="summary-copy">
