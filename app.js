@@ -558,38 +558,11 @@ function render() {
 
 function renderWelcome() {
   const hasDraft = countAnsweredQuestions() > 0;
-  const hasSheetsIntegration = Boolean(APP_CONFIG.webAppUrl);
   const participantName = state.participantName || "";
 
   app.innerHTML = `
     <section class="app-panel welcome-layout">
       <div class="welcome-main">
-        <article class="welcome-card">
-          <p class="eyebrow">Демонстрационный режим</p>
-          <h2>Опросник SF-36 в формате веб-сайта</h2>
-          <p class="hero-text">
-            Сайт работает на статическом фронтенде и подходит для показа на лекции. Расчет выполняется в браузере,
-            а результаты можно сохранить в Google Sheets без отдельного сервера.
-          </p>
-          <p class="welcome-outcome">
-            После прохождения пользователь получит итоговый балл от 0 до 100, профиль из 8 шкал качества жизни и короткую интерпретацию результата.
-          </p>
-          <div class="feature-grid">
-            <div class="feature-item">
-              <strong>36</strong>
-              <span>вопросов в пошаговой форме</span>
-            </div>
-            <div class="feature-item">
-              <strong>8</strong>
-              <span>итоговых шкал от 0 до 100</span>
-            </div>
-            <div class="feature-item">
-              <strong>${hasSheetsIntegration ? "Sheets" : "JSON"}</strong>
-              <span>${hasSheetsIntegration ? "результаты можно отправить в таблицу" : "результат можно скачать или подготовить к таблице"}</span>
-            </div>
-          </div>
-        </article>
-
         <article class="welcome-card">
           <h3>Кто проходит тест</h3>
           <div class="field-stack">
