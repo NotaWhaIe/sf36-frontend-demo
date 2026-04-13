@@ -1093,6 +1093,16 @@ h1 {
   margin-top: 14px;
 }
 
+.result-actions--single-line {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.result-actions--single-line .btn {
+  flex: 0 0 auto;
+}
+
 .result-actions--footer {
   justify-content: center;
 }

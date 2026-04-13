@@ -804,6 +804,11 @@ function renderResults() {
     SCALE_ORDER.reduce((sum, scaleKey) => sum + results.normalized[scaleKey], 0) / SCALE_ORDER.length,
   );
   const participantLabel = getParticipantLabel();
+  const resultActionButtons = `
+    <button class="btn btn-primary" id="download-json-btn">Скачать JSON результата</button>
+    <button class="btn btn-secondary" id="review-btn">Вернуться к вопросам</button>
+    <button class="btn btn-ghost" id="reset-btn">Очистить и начать заново</button>
+  `;
 
   app.innerHTML = `
     <section class="app-panel result-panel">
@@ -852,14 +857,9 @@ function renderResults() {
       </div>
 
       <div class="result-insights result-insights--single">
-        ${renderSheetSyncCard()}
+        ${renderSheetSyncCard(resultActionButtons)}
       </div>
 
-      <div class="result-actions result-actions--footer">
-        <button class="btn btn-primary" id="download-json-btn">Скачать JSON результата</button>
-        <button class="btn btn-secondary" id="review-btn">Вернуться к вопросам</button>
-        <button class="btn btn-ghost" id="reset-btn">Очистить и начать заново</button>
-      </div>
     </section>
   `;
 
@@ -921,7 +921,7 @@ function renderMiniScale(scaleKey, score) {
   `;
 }
 
-function renderSheetSyncCard() {
+function renderSheetSyncCard(extraActions = "") {
   const stateMeta = getSheetSyncMeta();
   const tableAction = APP_CONFIG.spreadsheetUrl
     ? `<a class="btn btn-secondary" href="${APP_CONFIG.spreadsheetUrl}" target="_blank" rel="noreferrer">Открыть таблицу</a>`
@@ -946,9 +946,10 @@ function renderSheetSyncCard() {
           ? `<div class="sync-chip" id="sheet-sync-sheet">Лист: ${escapeHtml(state.lastSyncedSheetName)}</div>`
           : '<div class="sync-chip sync-chip--ghost" id="sheet-sync-sheet">Лист будет выбран автоматически</div>'
       }
-      <div class="result-actions result-actions--sync">
+      <div class="result-actions result-actions--sync result-actions--single-line">
         ${primaryButton}
         ${tableAction}
+        ${extraActions}
       </div>
     </article>
   `;
@@ -1187,10 +1188,11 @@ function renderRadarChart(normalizedScores) {
               <circle cx="100" cy="48" r="30"></circle>
               <path d="M62 92 C45 92 34 103 28 115 L15 152 C11 162 12 173 17 181 L33 214 C36 220 43 222 48 219 C53 216 55 210 52 205 L42 184 L50 184 L50 304 C50 318 60 328 74 328 C88 328 98 318 98 304 L98 228 L102 228 L102 304 C102 318 112 328 126 328 C140 328 150 318 150 304 L150 184 L158 184 L148 205 C145 210 147 216 152 219 C157 222 164 220 167 214 L183 181 C188 173 189 162 185 152 L172 115 C166 103 155 92 138 92 Z"></path>
             </clipPath>
-            <linearGradient id="human-fill-gradient" x1="0" y1="1" x2="0" y2="0">
-              <stop offset="0%" stop-color="#f08b1a"></stop>
-              <stop offset="100%" stop-color="#f5c26e"></stop>
-            </linearGradient>
+              <linearGradient id="human-fill-gradient" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#d37d3f"></stop>
+                <stop offset="38%" stop-color="#f0b562"></stop>
+                <stop offset="100%" stop-color="#74c89e"></stop>
+              </linearGradient>
           </defs>
           <rect x="0" y="0" width="200" height="${silhouetteHeight}" class="human-meter-base" clip-path="url(#human-clip)"></rect>
           <rect x="0" y="${fillY}" width="200" height="${fillHeight}" fill="url(#human-fill-gradient)" clip-path="url(#human-clip)"></rect>
