@@ -484,7 +484,6 @@ if (app) {
 function createDefaultState() {
   return {
     currentScreenIndex: 0,
-    promoSeen: false,
     startedAt: null,
     completedAt: null,
     submissionId: null,
@@ -546,7 +545,7 @@ function resetSyncState() {
 }
 
 function render() {
-  if (state.currentScreenIndex === 0 && !state.promoSeen) {
+  if (!isPromoDismissedForSession()) {
     renderPromoLanding();
     return;
   }
@@ -560,6 +559,20 @@ function render() {
   } else {
     renderQuestionScreen(screen);
   }
+}
+
+function isPromoDismissedForSession() {
+  if (typeof sessionStorage === "undefined") {
+    return false;
+  }
+  return sessionStorage.getItem("sf36-promo-dismissed") === "1";
+}
+
+function markPromoDismissedForSession() {
+  if (typeof sessionStorage === "undefined") {
+    return;
+  }
+  sessionStorage.setItem("sf36-promo-dismissed", "1");
 }
 
 function renderPromoLanding() {
@@ -588,8 +601,7 @@ function renderPromoLanding() {
   `;
 
   document.getElementById("promo-enter-btn").addEventListener("click", () => {
-    state.promoSeen = true;
-    saveState();
+    markPromoDismissedForSession();
     render();
   });
 }
