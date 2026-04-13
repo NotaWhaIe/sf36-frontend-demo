@@ -476,9 +476,58 @@ const SCALE_ORDER = ["pf", "rp", "bp", "gh", "mh", "re", "sf", "vt"];
 
 const state = loadState();
 const app = typeof document !== "undefined" ? document.getElementById("app") : null;
+const ROUTE_MODE = {
+  TEST: "test",
+  RESULT: "result",
+};
+let promoLandingDismissed = false;
 
 if (app) {
   render();
+}
+
+function getRouteMode() {
+  if (typeof window === "undefined") {
+    return ROUTE_MODE.TEST;
+  }
+
+  return /\/test\/result(?:\/index\.html)?\/?$/.test(window.location.pathname)
+    ? ROUTE_MODE.RESULT
+    : ROUTE_MODE.TEST;
+}
+
+function navigateToResultRoute() {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  const url = new URL(window.location.href);
+  if (/\/test\/result(?:\/index\.html)?\/?$/.test(url.pathname)) {
+    return;
+  }
+
+  const nextPath = url.pathname.replace(/\/test(?:\/index\.html)?\/?$/, "/test/result/");
+  if (nextPath !== url.pathname) {
+    url.pathname = nextPath;
+    window.history.replaceState({}, "", url.toString());
+  }
+}
+
+function navigateToTestRoute() {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  const url = new URL(window.location.href);
+  if (/\/test(?:\/index\.html)?\/?$/.test(url.pathname)) {
+    return;
+  }
+
+  const nextPath = url.pathname.replace(/\/test\/result(?:\/index\.html)?\/?$/, "/test/");
+  if (nextPath !== url.pathname) {
+    url.pathname = nextPath;
+    window.history.replaceState({}, "", url.toString());
+  }
 }
 
 function createDefaultState() {
@@ -546,15 +595,46 @@ function resetSyncState() {
 }
 
 function render() {
+  const routeMode = getRouteMode();
+  const resultsScreenIndex = SCREENS.length - 1;
+  const isQuestionnaireComplete = Boolean(state.completedAt) && countAnsweredQuestions() === QUESTIONS.length;
+
+  if (routeMode === ROUTE_MODE.RESULT && !isQuestionnaireComplete) {
+    if (state.currentScreenIndex === resultsScreenIndex) {
+      state.currentScreenIndex = countAnsweredQuestions() > 0 ? 1 : 0;
+      saveState();
+    }
+    navigateToTestRoute();
+  }
+
+  if (routeMode === ROUTE_MODE.RESULT && isQuestionnaireComplete && state.currentScreenIndex !== resultsScreenIndex) {
+    state.currentScreenIndex = resultsScreenIndex;
+    if (!state.submissionId) {
+      state.submissionId = createSubmissionId();
+    }
+    saveState();
+  }
+
   const screen = SCREENS[state.currentScreenIndex];
+
+  if (screen.type === "results") {
+    if (routeMode !== ROUTE_MODE.RESULT) {
+      navigateToResultRoute();
+    }
+    renderResults();
+    return;
+  }
+
+  if (routeMode === ROUTE_MODE.RESULT) {
+    navigateToTestRoute();
+  }
 
   if (screen.type === "welcome") {
     renderWelcome();
-  } else if (screen.type === "results") {
-    renderResults();
-  } else {
-    renderQuestionScreen(screen);
+    return;
   }
+
+  renderQuestionScreen(screen);
 }
 
 function shouldShowPromoLanding() {
@@ -929,7 +1009,6 @@ function renderSheetSyncCard(extraActions = "") {
 
   return `
     <article class="summary-card summary-card--sync summary-card--${stateMeta.tone}" id="sheet-sync-card">
-      <div class="scale-group-label">Google Sheets</div>
       <div class="result-actions result-actions--sync result-actions--single-line">
         ${primaryButton}
         ${tableAction}
