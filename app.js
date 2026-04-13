@@ -476,6 +476,7 @@ const SCALE_ORDER = ["pf", "rp", "bp", "gh", "mh", "re", "sf", "vt"];
 
 const state = loadState();
 const app = typeof document !== "undefined" ? document.getElementById("app") : null;
+let promoLandingDismissed = false;
 
 if (app) {
   render();
@@ -545,7 +546,7 @@ function resetSyncState() {
 }
 
 function render() {
-  if (!isPromoDismissedForSession()) {
+  if (!promoLandingDismissed) {
     renderPromoLanding();
     return;
   }
@@ -559,20 +560,6 @@ function render() {
   } else {
     renderQuestionScreen(screen);
   }
-}
-
-function isPromoDismissedForSession() {
-  if (typeof sessionStorage === "undefined") {
-    return false;
-  }
-  return sessionStorage.getItem("sf36-promo-dismissed") === "1";
-}
-
-function markPromoDismissedForSession() {
-  if (typeof sessionStorage === "undefined") {
-    return;
-  }
-  sessionStorage.setItem("sf36-promo-dismissed", "1");
 }
 
 function renderPromoLanding() {
@@ -601,7 +588,7 @@ function renderPromoLanding() {
   `;
 
   document.getElementById("promo-enter-btn").addEventListener("click", () => {
-    markPromoDismissedForSession();
+    promoLandingDismissed = true;
     render();
   });
 }

@@ -59,7 +59,7 @@ body {
 
 .hero {
   display: grid;
-  grid-template-columns: minmax(0, 1.7fr) minmax(280px, 0.9fr);
+  grid-template-columns: 1fr;
   gap: 20px;
   align-items: stretch;
   margin-bottom: 20px;
@@ -163,6 +163,14 @@ h1 {
   color: rgba(23, 53, 60, 0.56);
   font-size: 0.84rem;
   line-height: 1.45;
+}
+
+.site-signature p + p {
+  margin-top: 2px;
+}
+
+.result-panel > .result-hero {
+  display: none;
 }
 
 .app-panel {
