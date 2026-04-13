@@ -1200,7 +1200,7 @@ function renderRadarChart(normalizedScores) {
               <circle cx="100" cy="48" r="30"></circle>
               <path d="M62 92 C45 92 34 103 28 115 L15 152 C11 162 12 173 17 181 L33 214 C36 220 43 222 48 219 C53 216 55 210 52 205 L42 184 L50 184 L50 304 C50 318 60 328 74 328 C88 328 98 318 98 304 L98 228 L102 228 L102 304 C102 318 112 328 126 328 C140 328 150 318 150 304 L150 184 L158 184 L148 205 C145 210 147 216 152 219 C157 222 164 220 167 214 L183 181 C188 173 189 162 185 152 L172 115 C166 103 155 92 138 92 Z"></path>
             </clipPath>
-              <linearGradient id="human-fill-gradient" x1="0" y1="0" x2="1" y2="0">
+              <linearGradient id="human-fill-gradient" x1="0" y1="1" x2="0" y2="0">
                 <stop offset="0%" stop-color="#d37d3f"></stop>
                 <stop offset="38%" stop-color="#f0b562"></stop>
                 <stop offset="100%" stop-color="#74c89e"></stop>
