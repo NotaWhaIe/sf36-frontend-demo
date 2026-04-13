@@ -677,10 +677,9 @@ h1 {
 }
 
 .radar-chart-wrap {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: end;
-  gap: 14px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
 }
 
 .radar-human-shell {
@@ -1141,9 +1140,7 @@ h1 {
   }
 
   .radar-chart-wrap {
-    grid-template-columns: 1fr;
-    justify-items: center;
-    gap: 10px;
+    justify-content: center;
     align-items: center;
   }
 

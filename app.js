@@ -773,7 +773,6 @@ function renderResults() {
   );
   const bestScaleKey = topScales[0];
   const focusScaleKey = lowScales[0];
-  const comparisonLabel = getAnswerLabel("q2", state.answers.q2) || "Нет данных";
   const participantLabel = getParticipantLabel();
 
   app.innerHTML = `
@@ -783,7 +782,7 @@ function renderResults() {
           <p class="eyebrow">Результат готов</p>
           <h2>Профиль качества жизни по SF-36</h2>
           <p>
-            Все восемь шкал собраны в одной диаграмме. Чем ближе контур к внешнему краю, тем выше показатель по соответствующей шкале.
+            Ниже показаны восемь шкал SF-36 и общий индикатор по силуэту: чем выше процент, тем выше итоговый профиль.
           </p>
           <div class="result-person-chip">${escapeHtml(participantLabel)}</div>
         </div>
@@ -810,22 +809,7 @@ function renderResults() {
         </div>
 
         <article class="result-radar-card">
-          <div class="radar-highlight">
-            <div class="radar-highlight-emoji" aria-hidden="true">${SCALE_META[bestScaleKey].emoji}</div>
-            <div>
-              <div class="scale-group-label">Лучше всего сейчас</div>
-              <h3>${SCALE_META[bestScaleKey].title}</h3>
-              <p class="support-text">${results.normalized[bestScaleKey]}/100 · ${getBandLabel(results.normalized[bestScaleKey])}</p>
-            </div>
-          </div>
-
-          <div class="radar-chart-wrap">
-            ${renderRadarChart(results.normalized)}
-          </div>
-
-          <p class="radar-caption">
-            Сравнение с прошлым годом: <strong>${comparisonLabel}</strong>
-          </p>
+          ${renderRadarChart(results.normalized)}
         </article>
 
         <div class="result-side-stack result-side-stack--right">
@@ -1152,8 +1136,8 @@ function renderResultMetric(scaleKey, score) {
       <div class="metric-orbit-head">
         <span class="metric-emoji" aria-hidden="true">${meta.emoji}</span>
         <div>
-          <div class="metric-name">${meta.shortTitle}</div>
-          <div class="metric-group">${meta.groupShort}</div>
+          <div class="metric-name">${meta.title}</div>
+          <div class="metric-group">${meta.group}</div>
         </div>
       </div>
       <div class="metric-value">${score}<span>/100</span></div>
@@ -1166,40 +1150,12 @@ function renderResultMetric(scaleKey, score) {
 }
 
 function renderRadarChart(normalizedScores) {
-  const size = 360;
-  const center = size / 2;
-  const radius = 132;
   const silhouetteHeight = 360;
-  const levels = [25, 50, 75, 100];
   const averageScore = Math.round(
     SCALE_ORDER.reduce((sum, scaleKey) => sum + normalizedScores[scaleKey], 0) / SCALE_ORDER.length,
   );
   const fillHeight = Math.round((averageScore / 100) * silhouetteHeight);
   const fillY = silhouetteHeight - fillHeight;
-  const levelPolygons = levels
-    .map((level) => {
-      const points = getRadarPolygonPoints(SCALE_ORDER.map(() => level), radius, center);
-      return `<polygon class="radar-grid-polygon" points="${points}"></polygon>`;
-    })
-    .join("");
-  const spokes = SCALE_ORDER.map((_, index) => {
-    const point = polarToCartesian(center, center, radius, (360 / SCALE_ORDER.length) * index);
-    return `<line class="radar-grid-spoke" x1="${center}" y1="${center}" x2="${point.x.toFixed(2)}" y2="${point.y.toFixed(2)}"></line>`;
-  }).join("");
-  const dataPoints = getRadarPolygonPoints(
-    SCALE_ORDER.map((scaleKey) => normalizedScores[scaleKey]),
-    radius,
-    center,
-  );
-  const markers = SCALE_ORDER.map((scaleKey, index) => {
-    const point = polarToCartesian(
-      center,
-      center,
-      radius * (normalizedScores[scaleKey] / 100),
-      (360 / SCALE_ORDER.length) * index,
-    );
-    return `<circle class="radar-marker" cx="${point.x.toFixed(2)}" cy="${point.y.toFixed(2)}" r="4.2"></circle>`;
-  }).join("");
 
   return `
     <div class="radar-chart-wrap">
@@ -1222,39 +1178,8 @@ function renderRadarChart(normalizedScores) {
         </svg>
         <div class="human-meter-label">${averageScore}%</div>
       </div>
-      <div class="radar-chart-shell">
-        <svg class="radar-chart" viewBox="0 0 ${size} ${size}" aria-hidden="true" focusable="false">
-          ${levelPolygons}
-          ${spokes}
-          <polygon class="radar-data-fill" points="${dataPoints}"></polygon>
-          <polygon class="radar-data-line" points="${dataPoints}"></polygon>
-          ${markers}
-        </svg>
-      </div>
-      <div class="radar-side-badge">
-        <strong>${averageScore}</strong>
-        <span>/100</span>
-      </div>
     </div>
   `;
-}
-
-function getRadarPolygonPoints(values, maxRadius, center) {
-  return values
-    .map((value, index) => {
-      const point = polarToCartesian(center, center, maxRadius * (value / 100), (360 / values.length) * index);
-      return `${point.x.toFixed(2)},${point.y.toFixed(2)}`;
-    })
-    .join(" ");
-}
-
-function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
-  const angleInRadians = ((angleInDegrees - 90) * Math.PI) / 180;
-
-  return {
-    x: centerX + radius * Math.cos(angleInRadians),
-    y: centerY + radius * Math.sin(angleInRadians),
-  };
 }
 
 function handleAnswerChange(event) {
