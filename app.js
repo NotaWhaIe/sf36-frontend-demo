@@ -972,7 +972,7 @@ function getSheetSyncMeta() {
     message: "",
     primary: {
       action: "export_and_save",
-      label: APP_CONFIG.webAppUrl ? "Скачать JSON и сохранить в таблицу" : "Скачать JSON результата",
+      label: "Скачать результат",
       disabled: false,
     },
   };
