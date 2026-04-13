@@ -611,10 +611,10 @@ function renderQuestionScreen(screen) {
       <header class="screen-header">
         <div class="screen-meta">
           <span class="screen-kicker">Экран ${currentScreenNumber} из ${totalQuestionScreens}</span>
-          <span class="support-text">${answeredCount} из ${QUESTIONS.length} ответов заполнено</span>
+          <span class="support-text" id="screen-progress-count">${answeredCount} из ${QUESTIONS.length} ответов заполнено</span>
         </div>
         <div class="progress-shell" aria-hidden="true">
-          <div class="progress-bar" style="width: ${progress}%"></div>
+          <div class="progress-bar" id="screen-progress-bar" style="width: ${progress}%"></div>
         </div>
         <div>
           <h2 class="screen-title">${screen.title}</h2>
@@ -625,7 +625,7 @@ function renderQuestionScreen(screen) {
       ${
         state.lastError
           ? `
-            <div class="status-banner" role="alert">
+            <div class="status-banner" id="validation-banner" role="alert">
               <p>${state.lastError}</p>
             </div>
           `
@@ -661,7 +661,7 @@ function renderQuestionCard(question) {
 
   if (isEmojiScale) {
     return `
-      <article class="question-card">
+      <article class="question-card" data-question-id="${question.id}">
         <span class="question-label">Вопрос ${question.number}</span>
         <p class="question-text">${question.text}</p>
         <div class="emoji-scale" role="radiogroup" aria-label="Варианты ответа для вопроса ${question.number}">
@@ -690,7 +690,7 @@ function renderQuestionCard(question) {
   }
 
   return `
-    <article class="question-card">
+    <article class="question-card" data-question-id="${question.id}">
       <span class="question-label">Вопрос ${question.number}</span>
       <p class="question-text">${question.text}</p>
       <div class="options-grid options-grid--compact">
@@ -847,7 +847,53 @@ function handleAnswerChange(event) {
   state.submissionId = null;
   state.lastError = "";
   saveState();
-  render();
+  updateQuestionCardUI(questionId);
+  updateQuestionScreenProgress();
+  clearValidationBanner();
+}
+
+function updateQuestionCardUI(questionId) {
+  const questionCard = document.querySelector(`.question-card[data-question-id="${questionId}"]`);
+  if (!questionCard) {
+    return;
+  }
+
+  questionCard.querySelectorAll('input[type="radio"]').forEach((radio) => {
+    const tile = radio.closest(".emoji-option, .option-tile");
+    if (tile) {
+      tile.classList.toggle("is-selected", radio.checked);
+    }
+  });
+
+  const caption = questionCard.querySelector(".emoji-caption");
+  if (caption) {
+    const selectedLabel = getAnswerLabel(questionId, state.answers[questionId]);
+    caption.textContent = selectedLabel
+      ? `Выбрано: ${selectedLabel}`
+      : "Нажмите на смайлик, который лучше всего подходит";
+  }
+}
+
+function updateQuestionScreenProgress() {
+  const answeredCount = countAnsweredQuestions();
+  const progress = Math.round((answeredCount / QUESTIONS.length) * 100);
+  const progressText = document.getElementById("screen-progress-count");
+  const progressBar = document.getElementById("screen-progress-bar");
+
+  if (progressText) {
+    progressText.textContent = `${answeredCount} из ${QUESTIONS.length} ответов заполнено`;
+  }
+
+  if (progressBar) {
+    progressBar.style.width = `${progress}%`;
+  }
+}
+
+function clearValidationBanner() {
+  const banner = document.getElementById("validation-banner");
+  if (banner) {
+    banner.remove();
+  }
 }
 
 function goBack() {
