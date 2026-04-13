@@ -761,14 +761,6 @@ function renderQuestionCard(question) {
 
 function renderResults() {
   const results = calculateScores(state.answers);
-  const topScales = [...SCALE_ORDER]
-    .sort((left, right) => results.normalized[right] - results.normalized[left])
-    .slice(0, 3);
-  const lowScales = [...SCALE_ORDER]
-    .sort((left, right) => results.normalized[left] - results.normalized[right])
-    .slice(0, 3);
-  const bestScaleKey = topScales[0];
-  const focusScaleKey = lowScales[0];
   const durationSeconds = getDurationSeconds();
   const averageScore = Math.round(
     SCALE_ORDER.reduce((sum, scaleKey) => sum + results.normalized[scaleKey], 0) / SCALE_ORDER.length,
@@ -805,36 +797,23 @@ function renderResults() {
 
       <div class="result-orbit-layout">
         <article class="result-radar-card result-radar-card--orbit">
-          <div class="metrics-orbit">
-            <div class="metrics-orbit-center">
+          <div class="metrics-matrix">
+            <div class="matrix-slot matrix-slot--1">${renderResultMetric(SCALE_ORDER[0], results.normalized[SCALE_ORDER[0]])}</div>
+            <div class="matrix-slot matrix-slot--2">${renderResultMetric(SCALE_ORDER[1], results.normalized[SCALE_ORDER[1]])}</div>
+            <div class="matrix-slot matrix-slot--3">${renderResultMetric(SCALE_ORDER[2], results.normalized[SCALE_ORDER[2]])}</div>
+            <div class="matrix-slot matrix-slot--4">${renderResultMetric(SCALE_ORDER[3], results.normalized[SCALE_ORDER[3]])}</div>
+            <div class="matrix-center">
               ${renderRadarChart(results.normalized)}
             </div>
-            ${SCALE_ORDER.map(
-              (scaleKey, index) => `
-                <div class="orbit-slot orbit-slot--${index}">
-                  ${renderResultMetric(scaleKey, results.normalized[scaleKey])}
-                </div>
-              `,
-            ).join("")}
+            <div class="matrix-slot matrix-slot--6">${renderResultMetric(SCALE_ORDER[4], results.normalized[SCALE_ORDER[4]])}</div>
+            <div class="matrix-slot matrix-slot--7">${renderResultMetric(SCALE_ORDER[5], results.normalized[SCALE_ORDER[5]])}</div>
+            <div class="matrix-slot matrix-slot--8">${renderResultMetric(SCALE_ORDER[6], results.normalized[SCALE_ORDER[6]])}</div>
+            <div class="matrix-slot matrix-slot--9">${renderResultMetric(SCALE_ORDER[7], results.normalized[SCALE_ORDER[7]])}</div>
           </div>
         </article>
       </div>
 
       <div class="result-insights result-insights--single">
-        <article class="summary-card">
-          <div class="scale-group-label">Сильная сторона</div>
-          <p class="summary-copy">
-            <strong>${SCALE_META[bestScaleKey].title}</strong> — ${results.normalized[bestScaleKey]}/100. ${SCALE_META[bestScaleKey].description}
-          </p>
-        </article>
-
-        <article class="summary-card">
-          <div class="scale-group-label">Точка внимания</div>
-          <p class="summary-copy">
-            <strong>${SCALE_META[focusScaleKey].title}</strong> — ${results.normalized[focusScaleKey]}/100. ${SCALE_META[focusScaleKey].description}
-          </p>
-        </article>
-
         ${renderSheetSyncCard()}
       </div>
 

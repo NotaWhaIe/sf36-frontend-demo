@@ -663,78 +663,41 @@ h1 {
 
 .result-radar-card--orbit {
   gap: 0;
-  padding: 28px 18px;
+  padding: 18px;
 }
 
-.metrics-orbit {
-  position: relative;
-  width: min(100%, 920px);
-  min-height: 900px;
-  margin: 0 auto;
+.metrics-matrix {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  align-items: stretch;
 }
 
-.metrics-orbit-center {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 2;
-  width: max-content;
+.matrix-slot {
+  min-width: 0;
 }
 
-.metrics-orbit-center .radar-human-shell {
-  width: 174px;
+.matrix-slot .metric-orbit {
+  height: 100%;
+  min-height: 190px;
 }
 
-.orbit-slot {
-  position: absolute;
-  width: 234px;
-  transform: translate(-50%, -50%);
-  z-index: 1;
+.matrix-center {
+  display: grid;
+  place-items: center;
+  min-height: 190px;
+  border-radius: var(--radius-md);
+  border: 1px dashed rgba(27, 62, 68, 0.14);
+  background: rgba(255, 255, 255, 0.66);
+  padding: 8px;
 }
 
-.orbit-slot .metric-orbit {
-  min-height: 210px;
+.matrix-center .radar-human-shell {
+  width: 170px;
 }
 
-.orbit-slot--0 {
-  left: 50%;
-  top: 14%;
-}
-
-.orbit-slot--1 {
-  left: 74%;
-  top: 25%;
-}
-
-.orbit-slot--2 {
-  left: 84%;
-  top: 50%;
-}
-
-.orbit-slot--3 {
-  left: 74%;
-  top: 75%;
-}
-
-.orbit-slot--4 {
-  left: 50%;
-  top: 86%;
-}
-
-.orbit-slot--5 {
-  left: 26%;
-  top: 75%;
-}
-
-.orbit-slot--6 {
-  left: 16%;
-  top: 50%;
-}
-
-.orbit-slot--7 {
-  left: 26%;
-  top: 25%;
+.matrix-center .radar-chart-wrap {
+  width: 100%;
 }
 
 .radar-highlight {
@@ -803,7 +766,7 @@ h1 {
 .human-meter-label--overlay {
   position: absolute;
   left: 50%;
-  top: 62%;
+  top: 46%;
   transform: translate(-50%, -50%);
   padding: 5px 10px;
   border-radius: 999px;
@@ -1180,27 +1143,14 @@ h1 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .metrics-orbit {
-    position: static;
-    width: 100%;
-    min-height: auto;
-    display: grid;
+  .metrics-matrix {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
   }
 
-  .metrics-orbit-center {
-    position: static;
-    transform: none;
-    justify-self: center;
+  .matrix-center {
     grid-column: 1 / -1;
-    margin-bottom: 4px;
-  }
-
-  .orbit-slot {
-    position: static;
-    width: 100%;
-    transform: none;
+    min-height: 180px;
   }
 
   .feature-grid,
@@ -1256,12 +1206,17 @@ h1 {
     grid-template-columns: 1fr;
   }
 
-  .metrics-orbit {
+  .metrics-matrix {
     grid-template-columns: 1fr;
   }
 
-  .metrics-orbit-center .radar-human-shell {
-    width: 158px;
+  .matrix-center {
+    grid-column: auto;
+    min-height: 170px;
+  }
+
+  .matrix-center .radar-human-shell {
+    width: 150px;
   }
 
   .radar-highlight {
