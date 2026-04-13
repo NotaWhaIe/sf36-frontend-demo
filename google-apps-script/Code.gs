@@ -41,6 +41,16 @@ function doPost(e) {
     const sheet = getOrCreateSheet_(spreadsheet, sheetName);
 
     ensureHeaders_(sheet);
+    const existingRow = findSubmissionRow_(sheet, payload.submission_id);
+    if (existingRow > 0) {
+      return jsonResponse_({
+        ok: true,
+        duplicate: true,
+        sheet_name: sheet.getName(),
+        row: existingRow,
+      });
+    }
+
     sheet.appendRow(buildRow_(payload, participantName));
 
     return jsonResponse_({
@@ -72,6 +82,26 @@ function ensureHeaders_(sheet) {
 
   sheet.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]);
   sheet.setFrozenRows(1);
+}
+
+function findSubmissionRow_(sheet, submissionId) {
+  if (!submissionId) {
+    return 0;
+  }
+
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) {
+    return 0;
+  }
+
+  const values = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
+  for (let index = 0; index < values.length; index += 1) {
+    if (String(values[index][0]) === String(submissionId)) {
+      return index + 2;
+    }
+  }
+
+  return 0;
 }
 
 function buildRow_(payload, participantName) {

@@ -928,21 +928,15 @@ function renderResults() {
     downloadPayload(buildSubmissionPayload(results));
   });
 
-  const retryButton = document.getElementById("sheet-sync-retry-btn");
-  if (retryButton) {
-    retryButton.addEventListener("click", () => {
-      syncResultsToGoogleSheets(results, { force: true });
+  const syncButton = document.getElementById("sheet-sync-primary-btn");
+  if (syncButton) {
+    syncButton.addEventListener("click", () => {
+      const action = syncButton.dataset.syncAction;
+      if (action === "save" || action === "retry") {
+        syncResultsToGoogleSheets(results);
+      }
     });
   }
-
-  const saveButton = document.getElementById("sheet-sync-save-btn");
-  if (saveButton) {
-    saveButton.addEventListener("click", () => {
-      syncResultsToGoogleSheets(results, { force: true });
-    });
-  }
-
-  syncResultsToGoogleSheets(results);
 }
 
 function renderScaleCard(scaleKey, score) {
@@ -976,6 +970,16 @@ function renderSheetSyncCard() {
   const tableAction = APP_CONFIG.spreadsheetUrl
     ? `<a class="btn btn-secondary" href="${APP_CONFIG.spreadsheetUrl}" target="_blank" rel="noreferrer">Открыть таблицу</a>`
     : "";
+  const primaryButton = stateMeta.primary
+    ? `
+      <button
+        class="btn ${stateMeta.primary.disabled ? "btn-secondary" : "btn-primary"}"
+        id="sheet-sync-primary-btn"
+        data-sync-action="${stateMeta.primary.action}"
+        ${stateMeta.primary.disabled ? "disabled" : ""}
+      >${stateMeta.primary.label}</button>
+    `
+    : "";
 
   return `
     <article class="summary-card summary-card--sync summary-card--${stateMeta.tone}" id="sheet-sync-card">
@@ -987,8 +991,7 @@ function renderSheetSyncCard() {
           : '<div class="sync-chip sync-chip--ghost" id="sheet-sync-sheet">Лист будет выбран автоматически</div>'
       }
       <div class="result-actions result-actions--sync">
-        ${stateMeta.action === "save" ? '<button class="btn btn-primary" id="sheet-sync-save-btn">Сохранить в таблицу</button>' : ""}
-        ${stateMeta.action === "retry" ? '<button class="btn btn-primary" id="sheet-sync-retry-btn">Повторить отправку</button>' : ""}
+        ${primaryButton}
         ${tableAction}
       </div>
     </article>
@@ -999,8 +1002,8 @@ function getSheetSyncMeta() {
   if (!APP_CONFIG.webAppUrl) {
     return {
       tone: "muted",
-      action: "none",
       message: "Чтобы сайт сам писал результаты в таблицу, нужно опубликовать Apps Script и вставить его URL в config.js.",
+      primary: null,
     };
   }
 
@@ -1008,43 +1011,67 @@ function getSheetSyncMeta() {
     case "saving":
       return {
         tone: "info",
-        action: "none",
         message: "Сохраняем ответы в Google Sheets…",
+        primary: {
+          action: "none",
+          label: "Сохраняем…",
+          disabled: true,
+        },
       };
     case "saved":
       return {
         tone: "success",
-        action: "none",
         message: "Результат сохранен в Google Sheets.",
+        primary: {
+          action: "done",
+          label: "Сохранено в таблицу",
+          disabled: true,
+        },
       };
     case "sent":
       return {
         tone: "success",
-        action: "none",
         message: "Запрос на сохранение отправлен. Если Apps Script опубликован правильно, строка уже появится в таблице.",
+        primary: {
+          action: "done",
+          label: "Сохранено в таблицу",
+          disabled: true,
+        },
       };
     case "error":
       return {
         tone: "danger",
-        action: "retry",
         message: state.syncMessage || "Не удалось отправить результат в таблицу.",
+        primary: {
+          action: "retry",
+          label: "Повторить сохранение",
+          disabled: false,
+        },
       };
     default:
       return {
         tone: "muted",
-        action: "save",
         message: "Таблица подключена. Можно сохранить этот результат в отдельный лист по имени участника.",
+        primary: {
+          action: "save",
+          label: "Сохранить в таблицу",
+          disabled: false,
+        },
       };
   }
 }
 
-async function syncResultsToGoogleSheets(results, options = {}) {
+async function syncResultsToGoogleSheets(results) {
   if (!APP_CONFIG.webAppUrl) {
     return;
   }
 
+  if (state.syncStatus === "saving") {
+    return;
+  }
+
   const payload = buildSubmissionPayload(results);
-  if (!options.force && state.lastSyncedSubmissionId === payload.submission_id && ["saved", "sent"].includes(state.syncStatus)) {
+  if (state.lastSyncedSubmissionId === payload.submission_id && ["saved", "sent"].includes(state.syncStatus)) {
     return;
   }
 
@@ -1125,6 +1152,7 @@ function updateSheetSyncUI() {
   const message = document.getElementById("sheet-sync-message");
   const sheetChip = document.getElementById("sheet-sync-sheet");
   const card = document.getElementById("sheet-sync-card");
+  const button = document.getElementById("sheet-sync-primary-btn");
 
   if (!message || !sheetChip || !card) {
     return;
@@ -1133,6 +1161,13 @@ function updateSheetSyncUI() {
   const meta = getSheetSyncMeta();
   message.textContent = meta.message;
   card.className = `summary-card summary-card--sync summary-card--${meta.tone}`;
+
+  if (button && meta.primary) {
+    button.textContent = meta.primary.label;
+    button.dataset.syncAction = meta.primary.action;
+    button.disabled = meta.primary.disabled;
+    button.className = `btn ${meta.primary.disabled ? "btn-secondary" : "btn-primary"}`;
+  }
 
   if (state.lastSyncedSheetName) {
     sheetChip.textContent = `Лист: ${state.lastSyncedSheetName}`;
