@@ -1,5 +1,19 @@
 # SF-36 Frontend Demo
 
+## Страницы сайта
+
+- [Главная (промо)](https://notawhaie.github.io/sf36-frontend-demo/) — входная страница проекта с CTA для запуска теста.
+- [Опрос](https://notawhaie.github.io/sf36-frontend-demo/test/) — пошаговое прохождение SF-36 (9 экранов, 36 вопросов).
+- [Результат](https://notawhaie.github.io/sf36-frontend-demo/test/result/) — итоговый профиль по шкалам SF-36 и действия (скачивание/открытие таблицы/повторное прохождение).
+
+Прямые адреса для копирования в браузер:
+
+```text
+https://notawhaie.github.io/sf36-frontend-demo/
+https://notawhaie.github.io/sf36-frontend-demo/test/
+https://notawhaie.github.io/sf36-frontend-demo/test/result/
+```
+
 Статический учебный сайт с пошаговой веб-версией опросника `SF-36`.
 
 ## Что уже реализовано
@@ -51,9 +65,3 @@ http://localhost:8080
 2. Вставь его в `Extensions -> Apps Script` у своей таблицы.
 3. Опубликуй как `Web app`.
 4. Вставь URL веб-приложения в [config.js](./config.js) в поле `googleSheetsWebAppUrl`.
-
-## Страницы сайта
-
-- [Главная (промо)](https://notawhaie.github.io/sf36-frontend-demo/) — входная страница проекта с CTA для запуска теста.
-- [Опрос](https://notawhaie.github.io/sf36-frontend-demo/test/) — пошаговое прохождение SF-36 (9 экранов, 36 вопросов).
-- [Результат](https://notawhaie.github.io/sf36-frontend-demo/test/result/) — итоговый профиль по шкалам SF-36 и действия (скачивание/открытие таблицы/повторное прохождение).
